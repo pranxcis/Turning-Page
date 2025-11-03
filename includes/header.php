@@ -11,43 +11,59 @@ $isLoggedIn = isset($_SESSION['user_id']);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Turning Page | <?php echo $pageTitle ?? 'Home'; ?></title>
+  <title>Turning Page | <?php echo $pageTitle ?? 'Shop'; ?></title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header class="site-header">
+  <header class="navbar">
     <div class="container">
-      <div class="logo">
-        📚 <a href="index.php">Turning Page</a>
+      <div class="brand">
+        <a href="/TurningPage/index.php">📚 Turning Page</a>
       </div>
 
-      <nav class="nav-links">
-        <a href="index.php">Home</a>
-        <a href="shop.php">Shop</a>
-        <a href="about.php">About</a>
-        <a href="contact.php">Contact</a>
+      <nav class="nav-menu">
+        <a href="/TurningPage/index.php">Home</a>
+        <a href="/TurningPage/shop.php">Shop</a>
+        <a href="/TurningPage/about.php">About</a>
+        <a href="/TurningPage/contact.php">Contact</a>
 
-        <?php if ($isLoggedIn): ?>
+        <!-- Admin/User Dropdown -->
+        <?php if (isset($_SESSION['user_id'])): ?>
           <div class="dropdown">
             <button class="dropbtn">
-              <?php echo htmlspecialchars($_SESSION['username']); ?> ⌄
+              <?php echo isset($_SESSION['role']) && $_SESSION['role'] === 'admin' ? 'Admin' : 'Account'; ?> ⌄
             </button>
             <div class="dropdown-content">
-              <a href="profile.php">Profile</a>
-              <a href="orders.php">My Orders</a>
-              <?php if ($isAdmin): ?>
-                <a href="admin/dashboard.php">Admin Dashboard</a>
+              <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+                <a href="/TurningPage/admin/index.php">Items</a>
+                <a href="/TurningPage/admin/orders.php">Orders</a>
+                <a href="/TurningPage/admin/users.php">Users</a>
+              <?php else: ?>
+                <a href="/TurningPage/user/profile.php">Profile</a>
+                <a href="/TurningPage/user/myorders.php">My Orders</a>
               <?php endif; ?>
-              <a href="logout.php" class="logout">Logout</a>
             </div>
           </div>
-          <a href="cart.php" class="cart-link">🛒 Cart</a>
-        <?php else: ?>
-          <a href="login.php" class="btn-login">Login</a>
-          <a href="register.php" class="btn-register">Register</a>
         <?php endif; ?>
       </nav>
+
+      <!-- Search bar -->
+      <form action="search.php" method="GET" class="search-form">
+        <input type="text" name="search" placeholder="Search books..." required>
+        <button type="submit">🔍</button>
+      </form>
+
+      <!-- Auth links -->
+      <div class="auth-links">
+        <?php if (!isset($_SESSION['user_id'])): ?>
+          <a href="/TurningPage/user/login.php" class="btn-login">Login</a>
+          <a href="/TurningPage/user/register.php" class="btn-register">Register</a>
+        <?php else: ?>
+          <span class="user-email"><?php echo htmlspecialchars($_SESSION['email']); ?></span>
+          <a href="/TurningPage/user/logout.php" class="btn-logout">Logout</a>
+        <?php endif; ?>
+      </div>
     </div>
   </header>
 
