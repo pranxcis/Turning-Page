@@ -1,0 +1,154 @@
+/* ====== GENERAL STYLES ====== */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #fdfcfb;
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ====== HEADER STYLES ====== */
+.site-header {
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ====== LOGO ====== */
+.logo a {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #5C4033;
+}
+
+.logo a:hover {
+  color: #3d2a20;
+}
+
+/* ====== NAVIGATION ====== */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-links a {
+  font-weight: 500;
+  color: #333;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: #5C4033;
+}
+
+/* ====== BUTTONS ====== */
+.btn-login, .btn-register {
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  font-weight: 500;
+  margin-left: 0.5rem;
+}
+
+.btn-login {
+  background-color: #5C4033;
+  color: #fff;
+}
+
+.btn-login:hover {
+  background-color: #4a2e22;
+}
+
+.btn-register {
+  border: 1px solid #5C4033;
+  color: #5C4033;
+}
+
+.btn-register:hover {
+  background-color: #5C4033;
+  color: #fff;
+}
+
+/* ====== DROPDOWN MENU ====== */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  background: none;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  color: #333;
+}
+
+.dropbtn:hover {
+  color: #5C4033;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-width: 160px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 10px;
+  color: #333;
+}
+
+.dropdown-content a:hover {
+  background-color: #f2f2f2;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* ====== CART LINK ====== */
+.cart-link {
+  font-weight: 500;
+  color: #333;
+}
+
+.cart-link:hover {
+  color: #5C4033;
+}
+
+/* ====== LOGOUT LINK ====== */
+.logout {
+  color: red;
+}
+
+.logout:hover {
+  background-color: #fdd;
+}
+
+/* ====== MAIN CONTENT ====== */
+.content {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
