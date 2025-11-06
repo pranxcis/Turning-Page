@@ -1,4 +1,4 @@
-/* RESET + BASE */
+/* BASE RESET */
 * {
   margin: 0;
   padding: 0;
@@ -6,14 +6,15 @@
 }
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #fdfcfb;
+  background-color: #f8f6f4;
   color: #333;
+  line-height: 1.6;
 }
 
 /* NAVBAR */
 .navbar {
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -30,10 +31,11 @@ body {
 
 /* BRAND */
 .brand a {
-  font-weight: bold;
-  font-size: 1.5rem;
+  font-weight: 700;
+  font-size: 1.7rem;
   color: #5C4033;
   text-decoration: none;
+  letter-spacing: 0.5px;
 }
 .brand a:hover {
   color: #3c281f;
@@ -43,56 +45,59 @@ body {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 .nav-menu a {
   text-decoration: none;
-  color: #333;
+  color: #444;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: 0.2s;
 }
 .nav-menu a:hover {
   color: #5C4033;
+  border-bottom: 2px solid #5C4033;
 }
 
-/* SEARCH FORM */
+/* SEARCH */
 .search-form {
   display: flex;
   align-items: center;
   background: #fff;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 25px;
   overflow: hidden;
   margin-left: 1rem;
 }
 .search-form input {
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 0.5rem 0.8rem;
   outline: none;
-  width: 150px;
+  width: 180px;
 }
 .search-form button {
   background: #5C4033;
   color: white;
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 0.5rem 0.9rem;
   cursor: pointer;
+  transition: background 0.2s;
 }
 .search-form button:hover {
   background: #4A2F23;
 }
 
-/* AUTH LINKS */
+/* AUTH */
 .auth-links {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 .btn-login, .btn-register, .btn-logout {
-  padding: 0.4rem 0.8rem;
-  border-radius: 5px;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
   font-weight: 500;
   text-decoration: none;
+  transition: 0.2s;
 }
 .btn-login {
   background-color: #5C4033;
@@ -113,45 +118,6 @@ body {
 .user-email {
   font-size: 0.9rem;
   color: #555;
-}
-
-/* DROPDOWN */
-.dropdown {
-  position: relative;
-}
-.dropbtn {
-  background: none;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  color: #333;
-}
-.dropbtn:hover {
-  color: #5C4033;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: 100%;
-  background: #fff;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  border-radius: 5px;
-  min-width: 150px;
-  overflow: hidden;
-  z-index: 10;
-}
-.dropdown-content a {
-  display: block;
-  padding: 10px;
-  text-decoration: none;
-  color: #333;
-}
-.dropdown-content a:hover {
-  background: #f2f2f2;
-}
-.dropdown:hover .dropdown-content {
-  display: block;
 }
 
 /* RESPONSIVE */
