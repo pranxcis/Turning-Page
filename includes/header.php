@@ -16,7 +16,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
   <header class="navbar">
     <div class="container">
       <div class="brand">
-        <a href="/TurningPage/index.php">📚 Turning Page</a>
+        <a href="/TurningPage/index.php">Turning Page</a>
       </div>
 
       <nav class="nav-menu">
