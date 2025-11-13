@@ -1,4 +1,5 @@
 <?php include 'config/database.php'; ?>
+
 <?php include 'includes/header.php'; ?>
 
 <div class="container" style="margin-top:2rem;">
@@ -26,4 +27,3 @@
 </div>
 
     <?php include 'includes/footer.php'; ?>
-

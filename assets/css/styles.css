@@ -1,27 +1,29 @@
 /* BASE RESET */
 * {
   margin: 0;
-  padding: 0;
+  padding: 100;
   box-sizing: border-box;
 }
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f8f6f4;
-  color: #333;
+  background-color: #f8f9fa; /* Lux background */
+  color: #212529;
   line-height: 1.6;
 }
 
 /* NAVBAR */
 .navbar {
-  background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background-color: #fff; /* Lux navbar */
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
   position: sticky;
   top: 0;
   z-index: 1000;
 }
-.container {
+
+/* CONTAINER */
+.container, .container-fluid {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
@@ -33,12 +35,12 @@ body {
 .brand a {
   font-weight: 700;
   font-size: 1.7rem;
-  color: #5C4033;
+  color: #563d7c; /* Lux primary purple */
   text-decoration: none;
   letter-spacing: 0.5px;
 }
 .brand a:hover {
-  color: #3c281f;
+  color: #4a2d66;
 }
 
 /* NAV LINKS */
@@ -49,13 +51,13 @@ body {
 }
 .nav-menu a {
   text-decoration: none;
-  color: #444;
+  color: #495057; /* Lux text color for links */
   font-weight: 500;
   transition: 0.2s;
 }
 .nav-menu a:hover {
-  color: #5C4033;
-  border-bottom: 2px solid #5C4033;
+  color: #563d7c;
+  border-bottom: 2px solid #563d7c;
 }
 
 /* SEARCH */
@@ -63,8 +65,8 @@ body {
   display: flex;
   align-items: center;
   background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 25px;
+  border: 1px solid #ced4da;
+  border-radius: 50px;
   overflow: hidden;
   margin-left: 1rem;
 }
@@ -75,7 +77,7 @@ body {
   width: 180px;
 }
 .search-form button {
-  background: #5C4033;
+  background: #563d7c; /* Lux primary */
   color: white;
   border: none;
   padding: 0.5rem 0.9rem;
@@ -83,7 +85,7 @@ body {
   transition: background 0.2s;
 }
 .search-form button:hover {
-  background: #4A2F23;
+  background: #452c63;
 }
 
 /* AUTH */
@@ -100,29 +102,32 @@ body {
   transition: 0.2s;
 }
 .btn-login {
-  background-color: #5C4033;
+  background-color: #563d7c; /* Lux primary */
   color: #fff;
 }
+.btn-login:hover {
+  background-color: #452c63;
+}
 .btn-register {
-  border: 1px solid #5C4033;
-  color: #5C4033;
+  border: 1px solid #563d7c;
+  color: #563d7c;
 }
 .btn-register:hover {
-  background-color: #5C4033;
+  background-color: #563d7c;
   color: #fff;
 }
 .btn-logout {
-  color: red;
+  color: #d9534f; /* Bootstrap danger color */
   text-decoration: underline;
 }
 .user-email {
   font-size: 0.9rem;
-  color: #555;
+  color: #6c757d;
 }
 
 /* RESPONSIVE */
 @media (max-width: 768px) {
-  .container {
+  .container, .container-fluid {
     flex-direction: column;
     align-items: flex-start;
   }
