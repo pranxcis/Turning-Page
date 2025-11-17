@@ -1,19 +1,24 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 // Check login and role status
 $isLoggedIn = isset($_SESSION['user']);
-$isAdmin = $isLoggedIn && isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
-$userName = $isLoggedIn ? $_SESSION['user']['name'] : '';
-$userRole = $isLoggedIn ? $_SESSION['user']['role'] : '';
+$isAdmin = $isLoggedIn && ($_SESSION['user']['role'] ?? '') === 'admin';
+$userName = $isLoggedIn ? ($_SESSION['user']['name'] ?? '') : '';
+$userRole = $isLoggedIn ? ($_SESSION['user']['role'] ?? '') : '';
+
+// Page title (set before including header, fallback to 'Shop')
 $pageTitle = $pageTitle ?? 'Shop';
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Turning Page | <?= htmlspecialchars($pageTitle); ?></title>
+  <title>Turning Page | <?= htmlspecialchars($pageTitle) ?></title>
 
   <!-- Bootswatch Lux Theme (Bootstrap 5.3.2) -->
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/lux/bootstrap.min.css" rel="stylesheet">
@@ -24,7 +29,7 @@ $pageTitle = $pageTitle ?? 'Shop';
         integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <!-- Custom CSS (follow Turning Page structure) -->
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="/TurningPage/assets/css/style.css">
 
   <!-- Bootstrap Bundle with Popper -->
@@ -32,19 +37,18 @@ $pageTitle = $pageTitle ?? 'Shop';
           integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
           crossorigin="anonymous"></script>
 </head>
-
 <body>
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
     <!-- Brand -->
-    <a class="navbar-brand" href="/TurningPage/home.php" style="padding-left: 50px; padding-right: 50px;">
+    <a class="navbar-brand" href="/TurningPage/home.php" style="padding-left:50px; padding-right:50px;">
       <i class="fa-solid fa-book-open-reader me-2"></i>Turning Page
     </a>
 
     <!-- Toggler -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" 
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+      <span class="navbar-toggler-icon"></span>
     </button>
 
     <!-- Navbar Links -->
@@ -109,9 +113,6 @@ $pageTitle = $pageTitle ?? 'Shop';
           <li class="nav-item"><a class="nav-link" href="/TurningPage/login.php">Login</a></li>
           <li class="nav-item"><a class="nav-link" href="/TurningPage/register.php">Register</a></li>
         <?php else: ?>
-          <li class="nav-item">
-            <span class="navbar-text me-2"><?= htmlspecialchars($userName) ?></span>
-          </li>
           <li class="nav-item"><a class="nav-link" href="/TurningPage/user/logout.php">Logout</a></li>
         <?php endif; ?>
       </ul>

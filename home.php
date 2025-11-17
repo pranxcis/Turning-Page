@@ -1,3 +1,8 @@
+<?php
+session_start();       
+$pageTitle = "Home";         
+?>
+
 <?php include 'includes/header.php'; ?>
 <?php include 'config/database.php'; ?>
 
