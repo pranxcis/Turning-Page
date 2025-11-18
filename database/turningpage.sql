@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 17, 2025 at 10:01 AM
+-- Generation Time: Nov 17, 2025 at 11:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -47,7 +47,12 @@ INSERT INTO `authors` (`id`, `name`, `bio`) VALUES
 (7, 'Jane Austen', 'Author of Pride and Prejudice'),
 (8, 'J.R.R. Tolkien', 'Author of The Hobbit'),
 (9, 'George Orwell', 'Author of Animal Farm'),
-(10, 'C.S. Lewis', 'Author of The Chronicles of Narnia');
+(10, 'C.S. Lewis', 'Author of The Chronicles of Narnia'),
+(11, 'George Orwell', NULL),
+(12, 'Secret', 'xdxdxdsadsdadsdasd'),
+(13, 'Secret', 'xdxdxd'),
+(16, 'Peter Pettigrew', 'A mouse Arouse Acrose'),
+(17, 'Secret', 'Secrete nga eh');
 
 -- --------------------------------------------------------
 
@@ -60,6 +65,7 @@ CREATE TABLE `books` (
   `title` varchar(200) NOT NULL,
   `author_id` int(11) DEFAULT NULL,
   `genre` varchar(100) DEFAULT NULL,
+  `set_price` decimal(10,2) DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
   `description` text DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
@@ -72,17 +78,20 @@ CREATE TABLE `books` (
 -- Dumping data for table `books`
 --
 
-INSERT INTO `books` (`id`, `title`, `author_id`, `genre`, `price`, `description`, `image`, `condition`, `stock`, `created_at`) VALUES
-(1, 'The Great Gatsby', 1, NULL, 250.00, NULL, 'gatsby.jpg', 'Used', 10, '2025-11-16 14:53:19'),
-(2, 'To Kill a Mockingbird', 2, NULL, 300.00, NULL, 'mockingbird.jpg', 'Used', 8, '2025-11-16 14:53:19'),
-(3, '1984', 3, NULL, 200.00, NULL, '1984.jpg', 'Used', 15, '2025-11-16 14:53:19'),
-(4, 'Harry Potter and the Sorcerer\'s Stone', 4, NULL, 400.00, NULL, 'harry1.jpg', 'Used', 12, '2025-11-16 14:53:19'),
-(5, 'The Lord of the Rings: The Fellowship of the Ring', 5, NULL, 450.00, NULL, 'lotr1.jpg', 'Used', 5, '2025-11-16 14:53:19'),
-(6, 'The Catcher in the Rye', 6, NULL, 280.00, NULL, 'catcher.jpg', 'Used', 7, '2025-11-16 14:53:19'),
-(7, 'Pride and Prejudice', 7, NULL, 220.00, NULL, 'pride.jpg', 'Used', 20, '2025-11-16 14:53:19'),
-(8, 'The Hobbit', 8, NULL, 350.00, NULL, 'hobbit.jpg', 'Used', 10, '2025-11-16 14:53:19'),
-(9, 'Animal Farm', 9, NULL, 180.00, NULL, 'animalfarm.jpg', 'Used', 25, '2025-11-16 14:53:19'),
-(10, 'The Chronicles of Narnia: The Lion, the Witch and the Wardrobe', 10, NULL, 300.00, NULL, 'narnia1.jpg', 'Used', 8, '2025-11-16 14:53:19');
+INSERT INTO `books` (`id`, `title`, `author_id`, `genre`, `set_price`, `price`, `description`, `image`, `condition`, `stock`, `created_at`) VALUES
+(1, 'The Great Gatsby', 1, NULL, NULL, 250.00, NULL, 'gatsby.jpg', 'Used', 10, '2025-11-16 14:53:19'),
+(2, 'To Kill a Mockingbird', 2, NULL, NULL, 300.00, NULL, 'mockingbird.jpg', 'Used', 8, '2025-11-16 14:53:19'),
+(3, '1984', 3, NULL, NULL, 200.00, NULL, '1984.jpg', 'Used', 15, '2025-11-16 14:53:19'),
+(4, 'Harry Potter and the Sorcerer\'s Stone', 4, NULL, NULL, 400.00, NULL, 'harry1.jpg', 'Used', 12, '2025-11-16 14:53:19'),
+(5, 'The Lord of the Rings: The Fellowship of the Ring', 5, NULL, NULL, 450.00, NULL, 'lotr1.jpg', 'Used', 5, '2025-11-16 14:53:19'),
+(6, 'The Catcher in the Rye', 6, NULL, NULL, 280.00, NULL, 'catcher.jpg', 'Used', 7, '2025-11-16 14:53:19'),
+(7, 'Pride and Prejudice', 7, NULL, NULL, 220.00, NULL, 'pride.jpg', 'Used', 20, '2025-11-16 14:53:19'),
+(8, 'The Hobbit', 8, NULL, NULL, 350.00, NULL, 'hobbit.jpg', 'Used', 10, '2025-11-16 14:53:19'),
+(9, 'Animal Farm', 9, NULL, NULL, 180.00, NULL, 'animalfarm.jpg', 'Used', 25, '2025-11-16 14:53:19'),
+(10, 'The Chronicles of Narnia: The Lion, the Witch and the Wardrobe', 10, NULL, NULL, 300.00, NULL, 'narnia1.jpg', 'Used', 8, '2025-11-16 14:53:19'),
+(11, '1984', 11, 'Dystopian', 400.00, 350.00, 'A dystopian social science fiction novel and cautionary tale.', '1984.jpg', 'New', 10, '2025-11-17 19:14:59'),
+(13, 'Homage to Catalonia', 11, 'Horror', 350.00, 500.00, 'A personal account of Orwell\'s experiences in the Spanish Civil War. XD', '691b31cbbad69_mockingbird.jpg', 'New', 10, '2025-11-17 19:14:59'),
+(19, 'Azkaban Tales', 16, 'Adventure', 1000.00, 1100.00, 'A tale from the adventure of Peter Pettigrew in Azkaban', '691b337680126_azkaban.jpg', 'New', 101, '2025-11-17 22:38:46');
 
 -- --------------------------------------------------------
 
@@ -126,6 +135,15 @@ CREATE TABLE `cart_items` (
   `added_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `cart_items`
+--
+
+INSERT INTO `cart_items` (`id`, `user_id`, `book_id`, `quantity`, `added_at`) VALUES
+(2, 8, 19, 1, '2025-11-18 02:07:18'),
+(4, 8, 1, 2, '2025-11-18 02:08:59'),
+(5, 8, 5, 1, '2025-11-18 05:29:04');
+
 -- --------------------------------------------------------
 
 --
@@ -137,8 +155,23 @@ CREATE TABLE `orders` (
   `user_id` int(11) DEFAULT NULL,
   `total_amount` decimal(10,2) DEFAULT NULL,
   `status` enum('Pending','Paid','Shipped','Delivered','Cancelled') DEFAULT 'Pending',
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  `shipping_address` text DEFAULT NULL,
+  `shipping_method` varchar(50) DEFAULT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `voucher_code` varchar(50) DEFAULT NULL,
+  `shipping_fee` decimal(10,2) DEFAULT NULL,
+  `subtotal` decimal(10,2) DEFAULT NULL,
+  `total` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `orders`
+--
+
+INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `status`, `created_at`, `shipping_address`, `shipping_method`, `payment_method`, `voucher_code`, `shipping_fee`, `subtotal`, `total`) VALUES
+(1, 8, NULL, 'Pending', '2025-11-18 06:00:55', NULL, NULL, 'COD', NULL, 80.00, 3550.00, 3630.00),
+(2, 8, NULL, 'Pending', '2025-11-18 06:10:57', NULL, NULL, 'COD', NULL, 80.00, 3550.00, 3630.00);
 
 -- --------------------------------------------------------
 
@@ -205,12 +238,13 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `status`, `created_at`) VALUES
-(8, '', 'francisokay@gmail.com', '69e59ab5ba2ea62704e454e113894093801862e4', 'admin', 'active', '2025-11-17 15:12:05'),
+(8, 'Admin', 'francisokay@gmail.com', '69e59ab5ba2ea62704e454e113894093801862e4', 'admin', 'active', '2025-11-17 15:12:05'),
 (9, '', 'okaylang@gmail.com', '50c4e737839481d07f0db095acd05b49bddbf376', 'customer', 'active', '2025-11-17 15:39:15'),
-(10, '', 'francisokay3@gmail.com', 'e5f4981bd740e010127385571be8e72dcf1e18ff', 'customer', 'active', '2025-11-17 16:02:00'),
-(11, 'Francis', 'francisokay333@gmail.com', 'e5f4981bd740e010127385571be8e72dcf1e18ff', 'customer', 'active', '2025-11-17 16:04:03'),
+(10, '', 'francisokay3@gmail.com', 'e5f4981bd740e010127385571be8e72dcf1e18ff', 'customer', '', '2025-11-17 16:02:00'),
+(11, 'Francis', 'francisokay333@gmail.com', 'e5f4981bd740e010127385571be8e72dcf1e18ff', 'admin', 'active', '2025-11-17 16:04:03'),
 (12, 'root', 'francis@gmail.com', 'dc76e9f0c0006e8f919e0c515c66dbba3982f785', 'customer', 'active', '2025-11-17 16:43:55'),
-(13, 'Francis', 'francis333@gmail.com', 'f56d6351aa71cff0debea014d13525e42036187a', 'customer', 'active', '2025-11-17 16:57:58');
+(13, 'Francis', 'francis333@gmail.com', 'f56d6351aa71cff0debea014d13525e42036187a', 'customer', 'active', '2025-11-17 16:57:58'),
+(14, 'Frank', 'okay@gmail.com', '8fdb7e2fa84f4faf0d9b92f466df424ec47a165b', 'admin', '', '2025-11-17 17:30:40');
 
 -- --------------------------------------------------------
 
@@ -236,10 +270,26 @@ CREATE TABLE `user_profiles` (
 --
 
 INSERT INTO `user_profiles` (`id`, `user_id`, `last_name`, `first_name`, `middle_initial`, `phone`, `address`, `town`, `zipcode`, `profile_picture`) VALUES
-(3, 8, '', '', '', '', '', NULL, NULL, ''),
+(3, 8, 'Balbin', 'Francis', 'T', '92345678132', 'Taguig', 'Tanyag', '1630', '1763383234_Screenshot 2025-05-02 102103.png'),
 (4, 11, 'Balbin', 'Francis', 'T', '92345678132', 'Taguig', 'Tanyag', '1630', '1763368975_Screenshot 2025-05-02 102103.png'),
 (5, 12, 'Balls', 'Francis', 'Q', '92345678132', 'Taguig', 'Tanyag', '1630', '1763369067_Screenshot 2025-05-02 102103.png'),
-(6, 13, 'Balls', 'Francis', 'B', '92345678132', 'Taguig', 'Tanyag', '1630', '1763369908_Screenshot 2025-05-02 102103.png');
+(6, 13, 'Balls', 'Francis', 'B', '92345678132', 'Taguig', 'Tanyag', '1630', '1763369908_Screenshot 2025-05-02 102103.png'),
+(7, 14, 'Ballsdafafaf', 'asfasdf', 'R', '92345678132', 'Taguig', 'Tanyagas', '1630', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vouchers`
+--
+
+CREATE TABLE `vouchers` (
+  `id` int(11) NOT NULL,
+  `code` varchar(20) DEFAULT NULL,
+  `type` enum('percentage','fixed') NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `min_order` decimal(10,2) DEFAULT 0.00,
+  `expires_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
@@ -318,6 +368,13 @@ ALTER TABLE `user_profiles`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `vouchers`
+--
+ALTER TABLE `vouchers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -325,13 +382,13 @@ ALTER TABLE `user_profiles`
 -- AUTO_INCREMENT for table `authors`
 --
 ALTER TABLE `authors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `books`
 --
 ALTER TABLE `books`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `book_images`
@@ -343,13 +400,13 @@ ALTER TABLE `book_images`
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `order_items`
@@ -373,13 +430,19 @@ ALTER TABLE `transactions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `user_profiles`
 --
 ALTER TABLE `user_profiles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `vouchers`
+--
+ALTER TABLE `vouchers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables

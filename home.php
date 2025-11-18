@@ -1,10 +1,10 @@
 <?php
-session_start();       
-$pageTitle = "Home";         
-?>
+session_start();
+$pageTitle = "Home";
 
-<?php include 'includes/header.php'; ?>
-<?php include 'config/database.php'; ?>
+include 'includes/header.php';
+include 'config/database.php';
+?>
 
 <!-- HERO -->
 <div class="hero text-center p-5 rounded" style="overflow:hidden; margin: 10rem 0;">
@@ -18,6 +18,31 @@ $pageTitle = "Home";
 
 <div class="container my-5">
 
+<?php
+// Helper function to render book cards
+function renderBookCard($row) {
+    $image = !empty($row['image']) ? $row['image'] : 'default.jpg';
+    ?>
+    <li class="col-md-3 mb-4">
+        <a href="shop/book_info.php?book_id=<?php echo $row['id']; ?>" class="text-decoration-none text-dark">
+            <div class="card h-100 shadow-sm">
+                <img src="assets/images/books/<?php echo $image; ?>" 
+                     class="card-img-top" 
+                     alt="<?php echo htmlspecialchars($row['title']); ?>" 
+                     style="height:400px; object-fit:cover; border-radius:8px;">
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo htmlspecialchars($row['title']); ?></h5>
+                    <p class="card-text">by <?php echo htmlspecialchars($row['author_name']); ?></p>
+                    <p class="card-text"><strong>₱<?php echo number_format($row['price'], 2); ?></strong></p>
+                    <button class="btn btn-primary">View</button>
+                </div>
+            </div>
+        </a>
+    </li>
+    <?php
+}
+?>
+
 <!-- NEW RELEASES -->
 <div class="my-5">
     <h2>New Releases</h2>
@@ -30,19 +55,9 @@ $pageTitle = "Home";
                   LIMIT 8";
         $result = $conn->query($query);
         while ($row = $result->fetch_assoc()):
+            renderBookCard($row);
+        endwhile;
         ?>
-            <li class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm" style="cursor:pointer;" onclick="window.location='shop/book_info.php?id=<?= $row['id'] ?>';">
-                    <img src="assets/images/books/<?= $row['image'] ?? 'default.jpg' ?>" class="card-img-top" alt="<?= htmlspecialchars($row['title']) ?>" style="height:400px; object-fit:cover; border-radius:8px;">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($row['title']) ?></h5>
-                        <p class="card-text">by <?= htmlspecialchars($row['author_name']) ?></p>
-                        <p class="card-text"><strong>₱<?= number_format($row['price'],2) ?></strong></p>
-                        <a href="shop/book_info.php?id=<?= $row['id'] ?>" class="btn btn-primary">View</a>
-                    </div>
-                </div>
-            </li>
-        <?php endwhile; ?>
     </ul>
 </div>
 
@@ -60,19 +75,9 @@ $pageTitle = "Home";
                   LIMIT 8";
         $result = $conn->query($query);
         while ($row = $result->fetch_assoc()):
+            renderBookCard($row);
+        endwhile;
         ?>
-            <li class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm" style="cursor:pointer;" onclick="window.location='shop/book_info.php?id=<?= $row['id'] ?>';">
-                    <img src="assets/images/books/<?= $row['image'] ?? 'default.jpg' ?>" class="card-img-top" alt="<?= htmlspecialchars($row['title']) ?>" style="height:400px; object-fit:cover; border-radius:8px;">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($row['title']) ?></h5>
-                        <p class="card-text">by <?= htmlspecialchars($row['author_name']) ?></p>
-                        <p class="card-text"><strong>₱<?= number_format($row['price'],2) ?></strong></p>
-                        <a href="shop/book_info.php?id=<?= $row['id'] ?>" class="btn btn-primary">View</a>
-                    </div>
-                </div>
-            </li>
-        <?php endwhile; ?>
     </ul>
 </div>
 
@@ -87,19 +92,9 @@ $pageTitle = "Home";
                   ORDER BY b.title ASC";
         $result = $conn->query($query);
         while ($row = $result->fetch_assoc()):
+            renderBookCard($row);
+        endwhile;
         ?>
-            <li class="col-md-3 mb-4">
-                <div class="card h-100 shadow-sm" style="cursor:pointer;" onclick="window.location='shop/book_info.php?id=<?= $row['id'] ?>';">
-                    <img src="assets/images/books/<?= $row['image'] ?? 'default.jpg' ?>" class="card-img-top" alt="<?= htmlspecialchars($row['title']) ?>" style="height:400px; object-fit:cover; border-radius:8px;">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($row['title']) ?></h5>
-                        <p class="card-text">by <?= htmlspecialchars($row['author_name']) ?></p>
-                        <p class="card-text"><strong>₱<?= number_format($row['price'],2) ?></strong></p>
-                        <a href="shop/book_info.php?id=<?= $row['id'] ?>" class="btn btn-primary">View</a>
-                    </div>
-                </div>
-            </li>
-        <?php endwhile; ?>
     </ul>
 </div>
 
