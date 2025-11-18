@@ -99,11 +99,12 @@ $pageTitle = $pageTitle ?? 'Shop';
 
       </ul>
 
-      <!-- SEARCH -->
+      <!--
       <form action="/TurningPage/home.php" method="GET" class="d-flex me-3">
         <input class="form-control me-2" type="search" placeholder="Search books..." name="search">
         <button class="btn btn-outline-success" type="submit">Search</button>
       </form>
+            -->
 
       <!-- RIGHT SIDE (User) -->
       <ul class="navbar-nav ms-auto">

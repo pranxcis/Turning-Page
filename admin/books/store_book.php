@@ -2,118 +2,125 @@
 session_start();
 include('../../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
+// ADMIN ONLY
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Store POST data in session to repopulate form if error occurs
-$_SESSION['form_title']       = trim($_POST['title'] ?? '');
-$_SESSION['form_author']      = $_POST['author_id'] ?? '';
-$_SESSION['form_genre']       = trim($_POST['genre'] ?? '');
-$_SESSION['form_set_price']   = trim($_POST['set_price'] ?? '');
-$_SESSION['form_price']       = trim($_POST['price'] ?? '');
-$_SESSION['form_description'] = trim($_POST['description'] ?? '');
-$_SESSION['form_condition']   = $_POST['condition'] ?? '';
-$_SESSION['form_stock']       = trim($_POST['stock'] ?? '');
+// Collect form inputs
+$title        = trim($_POST['title'] ?? '');
+$author_id    = trim($_POST['author_id'] ?? '');
+$genre        = trim($_POST['genre'] ?? '');
+$set_price    = trim($_POST['set_price'] ?? '');
+$price        = trim($_POST['price'] ?? '');
+$description  = trim($_POST['description'] ?? '');
+$condition    = trim($_POST['condition'] ?? '');
+$stock        = trim($_POST['stock'] ?? '');
 
-// ------------------------
-// VALIDATION
-// ------------------------
-$hasError = false;
+// Basic validation (simplified)
+$errors = [];
 
-if (empty($_SESSION['form_title'])) {
-    $_SESSION['err_title'] = "Please enter book title";
-    $hasError = true;
-}
-if (empty($_SESSION['form_author'])) {
-    $_SESSION['err_author'] = "Please select an author";
-    $hasError = true;
-}
-if (empty($_SESSION['form_genre'])) {
-    $_SESSION['err_genre'] = "Please enter genre";
-    $hasError = true;
-}
-if (!is_numeric($_SESSION['form_set_price']) || $_SESSION['form_set_price'] < 0) {
-    $_SESSION['err_set_price'] = "Invalid set price";
-    $hasError = true;
-}
-if (!is_numeric($_SESSION['form_price']) || $_SESSION['form_price'] < 0) {
-    $_SESSION['err_price'] = "Invalid selling price";
-    $hasError = true;
-}
-if (empty($_SESSION['form_description'])) {
-    $_SESSION['err_description'] = "Please enter description";
-    $hasError = true;
-}
-if (empty($_SESSION['form_condition'])) {
-    $_SESSION['err_condition'] = "Select condition";
-    $hasError = true;
-}
-if (!is_numeric($_SESSION['form_stock']) || $_SESSION['form_stock'] < 0) {
-    $_SESSION['err_stock'] = "Invalid stock";
-    $hasError = true;
+if ($title === '')         $errors['err_title'] = "Title is required.";
+if ($author_id === '')     $errors['err_author'] = "Author is required.";
+if ($genre === '')         $errors['err_genre'] = "Genre is required.";
+if ($set_price === '')     $errors['err_set_price'] = "Set price required.";
+if ($price === '')         $errors['err_price'] = "Selling price required.";
+if ($condition === '')     $errors['err_condition'] = "Condition required.";
+if ($stock === '')         $errors['err_stock'] = "Stock required.";
+if ($description === '')   $errors['err_description'] = "Description required.";
+if (empty($_FILES['image']['name'])) {
+    $errors['err_image'] = "Main image is required.";
 }
 
-// ------------------------
-// IMAGE UPLOAD
-// ------------------------
-$target = '';
-if (isset($_FILES['image']) && $_FILES['image']['error'] != 4) {
-    $allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    if (in_array($_FILES['image']['type'], $allowed)) {
-        $target_dir = "../../assets/images/books/";
-        if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+if (!empty($errors)) {
+    foreach ($errors as $k => $v) $_SESSION[$k] = $v;
 
-        // Generate unique filename
-        $filename = uniqid() . '_' . $_FILES['image']['name'];
-        $target = $target_dir . $filename;
+    // persist input values
+    $_SESSION['form_title']      = $title;
+    $_SESSION['form_author']     = $author_id;
+    $_SESSION['form_genre']      = $genre;
+    $_SESSION['form_set_price']  = $set_price;
+    $_SESSION['form_price']      = $price;
+    $_SESSION['form_description']= $description;
+    $_SESSION['form_condition']  = $condition;
+    $_SESSION['form_stock']      = $stock;
 
-        // Move uploaded file
-        move_uploaded_file($_FILES['image']['tmp_name'], $target);
+    header("Location: add_book.php");
+    exit;
+}
 
-        // Only store filename in DB
-        $target = $filename;
+// ----------------------
+// UPLOAD: MAIN IMAGE
+// ----------------------
+$mainImageName = null;
 
-    } else {
-        $_SESSION['err_image'] = "Wrong file type";
-        $hasError = true;
+if (!empty($_FILES['image']['name'])) {
+    $uploadDir = "../../assets/uploads/books/";
+
+    // Create folder if not exists
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+    $mainImageName = time() . "_" . basename($_FILES['image']['name']);
+    $targetFile = $uploadDir . $mainImageName;
+
+    move_uploaded_file($_FILES['image']['tmp_name'], $targetFile);
+}
+
+// ----------------------
+// INSERT BOOK MAIN INFO
+// ----------------------
+$stmt = $conn->prepare("INSERT INTO books 
+    (title, author_id, genre, set_price, price, description, image, `condition`, stock, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+
+$stmt->bind_param(
+    "sissssssi",
+    $title,
+    $author_id,
+    $genre,
+    $set_price,
+    $price,
+    $description,
+    $mainImageName,
+    $condition,
+    $stock
+);
+
+$stmt->execute();
+$book_id = $stmt->insert_id;
+$stmt->close();
+
+// ----------------------
+// UPLOAD MULTIPLE IMAGES
+// ----------------------
+if (!empty($_FILES['additional_images']['name'][0])) {
+
+    $uploadDir = "../../assets/uploads/book_images/";
+    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+    foreach ($_FILES['additional_images']['name'] as $index => $filename) {
+        if ($filename == '') continue;
+
+        $newName = time() . "_" . $filename;
+        $targetFile = $uploadDir . $newName;
+
+        move_uploaded_file(
+            $_FILES['additional_images']['tmp_name'][$index],
+            $targetFile
+        );
+
+        // Save to book_images table
+        $stmt = $conn->prepare("INSERT INTO book_images (book_id, image_path) VALUES (?, ?)");
+        $stmt->bind_param("is", $book_id, $newName);
+        $stmt->execute();
+        $stmt->close();
     }
-} else {
-    $_SESSION['err_image'] = "Please upload a book image";
-    $hasError = true;
 }
 
-// ------------------------
-// REDIRECT IF ERROR
-// ------------------------
-if ($hasError) {
-    header("Location: create_book.php");
-    exit;
-}
+$_SESSION['message'] = "Book added successfully!";
+header("Location: ../manage_books.php");
+exit;
 
-// ------------------------
-// INSERT INTO DATABASE
-// ------------------------
-$sql = "INSERT INTO books (title, author_id, genre, set_price, price, description, image, `condition`, stock, created_at) 
-        VALUES ('{$_SESSION['form_title']}', {$_SESSION['form_author']}, '{$_SESSION['form_genre']}', 
-                {$_SESSION['form_set_price']}, {$_SESSION['form_price']}, '{$_SESSION['form_description']}', 
-                '{$target}', '{$_SESSION['form_condition']}', {$_SESSION['form_stock']}, NOW())";
-
-$result = mysqli_query($conn, $sql);
-
-if ($result) {
-    // Clear form session
-    unset($_SESSION['form_title'], $_SESSION['form_author'], $_SESSION['form_genre'], $_SESSION['form_set_price'], $_SESSION['form_price'], $_SESSION['form_description'], $_SESSION['form_condition'], $_SESSION['form_stock']);
-    $_SESSION['message'] = "Book added successfully!";
-    header("Location: ../manage_books.php");
-    exit;
-} else {
-    $_SESSION['message'] = "Database error: " . mysqli_error($conn);
-    header("Location: create_book.php");
-    exit;
-}
+?>

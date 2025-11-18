@@ -12,28 +12,17 @@ if (!isset($_SESSION['user']['id'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-// ----------------------
-// Mail function (Mailtrap) merged here
-// ----------------------
-function sendMail($to, $subject, $htmlContent) {
-    $headers  = "MIME-Version: 1.0" . "\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= "From: Turning Page <no-reply@yourdomain.com>" . "\r\n";
-
-    // Using PHP mail(), Mailtrap SMTP intercepts it
-    return mail($to, $subject, $htmlContent, $headers);
-}
 
 // ----------------------
 // Fetch user info & profile
 // ----------------------
 $stmt = $conn->prepare("
-    SELECT u.id, u.username, u.email, u.role, u.status, u.created_at,
-           p.first_name, p.middle_initial, p.last_name, p.phone, p.address, p.town, p.zipcode, p.profile_picture
-    FROM users u
-    LEFT JOIN user_profiles p ON u.id = p.user_id
-    WHERE u.id=? LIMIT 1
+    SELECT *
+    FROM view_user_profile
+    WHERE user_id = ?
+    LIMIT 1
 ");
+
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -43,11 +32,11 @@ $stmt->close();
 // Fetch cart items
 // ----------------------
 $stmt = $conn->prepare("
-    SELECT c.book_id, c.quantity, b.title, b.price, b.image
-    FROM cart_items c
-    JOIN books b ON b.id = c.book_id
-    WHERE c.user_id = ?
+    SELECT *
+    FROM view_cart_items
+    WHERE user_id = ?
 ");
+
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -174,7 +163,56 @@ if (isset($_POST['place_order'])) {
 
         $conn->commit();
 
-        // ... Email sending code remains unchanged ...
+                    // ----------------------
+            // SEND ORDER EMAIL
+            // ----------------------
+
+            $customerEmail = $user['email'];
+            $customerName  = $user['first_name'] . ' ' . $user['last_name'];
+
+            $orderHtml  = "<h2>Thank you for your order!</h2>";
+            $orderHtml .= "<p>Hi <strong>{$customerName}</strong>,</p>";
+            $orderHtml .= "<p>Your order <strong>#{$order_id}</strong> has been received.</p>";
+
+            $orderHtml .= "<h3>Order Items</h3>";
+            $orderHtml .= "<table border='1' cellpadding='6' cellspacing='0' width='100%'>";
+            $orderHtml .= "<tr><th>Title</th><th>Qty</th><th>Price</th><th>Total</th></tr>";
+
+            foreach ($cart_items as $item) {
+                $orderHtml .= "<tr>
+                    <td>{$item['title']}</td>
+                    <td>{$item['quantity']}</td>
+                    <td>₱" . number_format($item['price'], 2) . "</td>
+                    <td>₱" . number_format($item['line_total'], 2) . "</td>
+                </tr>";
+            }
+
+            $orderHtml .= "</table>";
+
+            $orderHtml .= "<p><strong>Subtotal:</strong> ₱" . number_format($subtotal, 2) . "</p>";
+            $orderHtml .= "<p><strong>Shipping:</strong> ₱" . number_format($shipping_fee, 2) . " ({$shipping_method})</p>";
+            $orderHtml .= "<p><strong>Discount:</strong> ₱" . number_format($discount_amount, 2) . "</p>";
+            $orderHtml .= "<h3>Total: ₱" . number_format($total, 2) . "</h3>";
+
+            $orderHtml .= "<p>We will notify you when your order ships.</p>";
+            $orderHtml .= "<p>— Turning Page Team</p>";
+
+            // Now send using your smtp_send_mail()
+            $emailResult = smtp_send_mail(
+                $customerEmail,
+                "Your Order Confirmation — Order #{$order_id}",
+                $orderHtml
+            );
+
+            if (!$emailResult['success']) {
+                $_SESSION['message'] = "Order placed, but email failed: " . htmlspecialchars($emailResult['error']);
+            } else {
+                $_SESSION['message'] = "Order placed successfully! A confirmation email has been sent.";
+            }
+
+            header("Location: ../user/order_history.php");
+            exit;
+
 
     } catch (Exception $e) {
         $conn->rollback();
