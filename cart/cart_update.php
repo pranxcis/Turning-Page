@@ -88,4 +88,5 @@ if (isset($_POST["remove_code"]) && is_array($_POST["remove_code"])) {
 $redirect = $_SERVER['HTTP_REFERER'] ?? '../shop/index.php';
 header("Location: $redirect");
 exit;
+
 ?>

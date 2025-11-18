@@ -12,7 +12,6 @@ if (!isset($_SESSION['user']['id'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-
 // ----------------------
 // Fetch user info & profile
 // ----------------------
@@ -22,7 +21,6 @@ $stmt = $conn->prepare("
     WHERE user_id = ?
     LIMIT 1
 ");
-
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -36,7 +34,6 @@ $stmt = $conn->prepare("
     FROM view_cart_items
     WHERE user_id = ?
 ");
-
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -62,6 +59,7 @@ $payment_method = 'COD';
 $voucher_code = '';
 $shipping_fee = 80;
 $discount_amount = 0;
+$shipping_address = $user['address'] ?? '';
 $total = $subtotal + $shipping_fee - $discount_amount;
 
 // ----------------------
@@ -96,88 +94,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $total = $subtotal + $shipping_fee - $discount_amount;
     }
 
-    // --- Update totals ---
-    if (isset($_POST['update_totals'])) {
-        $shipping_method = $_POST['shipping_method'] ?? 'Standard';
-        $payment_method = $_POST['payment_method'] ?? 'COD';
-        $voucher_code = $_POST['voucher_code'] ?? '';
-        calculateTotals($subtotal, $shipping_method, $voucher_code, $conn, $shipping_fee, $discount_amount, $total);
-    }
-
-// --- Place order ---
-if (isset($_POST['place_order'])) {
+    // Capture posted values
     $shipping_method = $_POST['shipping_method'] ?? 'Standard';
     $payment_method = $_POST['payment_method'] ?? 'COD';
     $voucher_code = $_POST['voucher_code'] ?? '';
-    calculateTotals($subtotal, $shipping_method, $voucher_code, $conn, $shipping_fee, $discount_amount, $total);
+    $shipping_address = trim($_POST['shipping_address'] ?? ($user['address'] ?? ''));
 
-    if (empty($cart_items)) {
-        $_SESSION['message'] = "Your cart is empty.";
-        header("Location: ../shop/index.php");
-        exit;
+    // --- Update totals ---
+    if (isset($_POST['update_totals'])) {
+        calculateTotals($subtotal, $shipping_method, $voucher_code, $conn, $shipping_fee, $discount_amount, $total);
     }
 
-    // Insert order and order items inside a transaction
-    $conn->begin_transaction();
-    try {
-        // Insert into orders
-        $stmt = $conn->prepare("
-            INSERT INTO orders (user_id, shipping_method, payment_method, voucher_code, shipping_fee, subtotal, total, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
-        $stmt->bind_param("isssddd", $user_id, $shipping_method, $payment_method, $voucher_code, $shipping_fee, $subtotal, $total);
-        $stmt->execute();
-        $order_id = $stmt->insert_id;
-        $stmt->close();
+    // --- Place order ---
+    if (isset($_POST['place_order'])) {
+        calculateTotals($subtotal, $shipping_method, $voucher_code, $conn, $shipping_fee, $discount_amount, $total);
 
-        // Insert order items and decrease stock
-        $stmt = $conn->prepare("
-            INSERT INTO order_items (order_id, book_id, quantity, price)
-            VALUES (?, ?, ?, ?)
-        ");
-        $stock_stmt = $conn->prepare("
-            UPDATE books SET stock = stock - ? WHERE id = ? AND stock >= ?
-        ");
-        foreach ($cart_items as $item) {
-            // Insert order item
-            $stmt->bind_param("iiid", $order_id, $item['book_id'], $item['quantity'], $item['price']);
-            $stmt->execute();
-
-            // Deduct stock safely
-            $stock_stmt->bind_param("iii", $item['quantity'], $item['book_id'], $item['quantity']);
-            $stock_stmt->execute();
-
-            // Optional: check if stock update affected a row
-            if ($stock_stmt->affected_rows === 0) {
-                throw new Exception("Insufficient stock for " . $item['title']);
-            }
+        if (empty($cart_items)) {
+            $_SESSION['message'] = "Your cart is empty.";
+            header("Location: ../shop/index.php");
+            exit;
         }
-        $stmt->close();
-        $stock_stmt->close();
 
-        // Clear cart
-        $stmt = $conn->prepare("DELETE FROM cart_items WHERE user_id=?");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $stmt->close();
+        // Insert order and order items inside a transaction
+        $conn->begin_transaction();
+        try {
+            // Insert into orders including shipping_address
+            $stmt = $conn->prepare("
+                INSERT INTO orders (user_id, shipping_method, payment_method, voucher_code, shipping_fee, subtotal, total, shipping_address, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            ");
+            $stmt->bind_param("isssddds", $user_id, $shipping_method, $payment_method, $voucher_code, $shipping_fee, $subtotal, $total, $shipping_address);
+            $stmt->execute();
+            $order_id = $stmt->insert_id;
+            $stmt->close();
 
-        $conn->commit();
+            // Insert order items and decrease stock
+            $stmt = $conn->prepare("
+                INSERT INTO order_items (order_id, book_id, quantity, price)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stock_stmt = $conn->prepare("
+                UPDATE books SET stock = stock - ? WHERE id = ? AND stock >= ?
+            ");
+            foreach ($cart_items as $item) {
+                $stmt->bind_param("iiid", $order_id, $item['book_id'], $item['quantity'], $item['price']);
+                $stmt->execute();
 
-                    // ----------------------
+                $stock_stmt->bind_param("iii", $item['quantity'], $item['book_id'], $item['quantity']);
+                $stock_stmt->execute();
+
+                if ($stock_stmt->affected_rows === 0) {
+                    throw new Exception("Insufficient stock for " . $item['title']);
+                }
+            }
+            $stmt->close();
+            $stock_stmt->close();
+
+            // Clear cart
+            $stmt = $conn->prepare("DELETE FROM cart_items WHERE user_id=?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $stmt->close();
+
+            $conn->commit();
+
+            // ----------------------
             // SEND ORDER EMAIL
             // ----------------------
-
             $customerEmail = $user['email'];
             $customerName  = $user['first_name'] . ' ' . $user['last_name'];
 
             $orderHtml  = "<h2>Thank you for your order!</h2>";
             $orderHtml .= "<p>Hi <strong>{$customerName}</strong>,</p>";
             $orderHtml .= "<p>Your order <strong>#{$order_id}</strong> has been received.</p>";
-
             $orderHtml .= "<h3>Order Items</h3>";
             $orderHtml .= "<table border='1' cellpadding='6' cellspacing='0' width='100%'>";
             $orderHtml .= "<tr><th>Title</th><th>Qty</th><th>Price</th><th>Total</th></tr>";
-
             foreach ($cart_items as $item) {
                 $orderHtml .= "<tr>
                     <td>{$item['title']}</td>
@@ -186,18 +178,15 @@ if (isset($_POST['place_order'])) {
                     <td>₱" . number_format($item['line_total'], 2) . "</td>
                 </tr>";
             }
-
             $orderHtml .= "</table>";
-
+            $orderHtml .= "<p><strong>Shipping Address:</strong> " . htmlspecialchars($shipping_address) . "</p>";
             $orderHtml .= "<p><strong>Subtotal:</strong> ₱" . number_format($subtotal, 2) . "</p>";
             $orderHtml .= "<p><strong>Shipping:</strong> ₱" . number_format($shipping_fee, 2) . " ({$shipping_method})</p>";
             $orderHtml .= "<p><strong>Discount:</strong> ₱" . number_format($discount_amount, 2) . "</p>";
             $orderHtml .= "<h3>Total: ₱" . number_format($total, 2) . "</h3>";
-
             $orderHtml .= "<p>We will notify you when your order ships.</p>";
             $orderHtml .= "<p>— Turning Page Team</p>";
 
-            // Now send using your smtp_send_mail()
             $emailResult = smtp_send_mail(
                 $customerEmail,
                 "Your Order Confirmation — Order #{$order_id}",
@@ -213,37 +202,28 @@ if (isset($_POST['place_order'])) {
             header("Location: ../user/order_history.php");
             exit;
 
-
-    } catch (Exception $e) {
-        $conn->rollback();
-        $_SESSION['message'] = "Error placing order: " . $e->getMessage();
-        header("Location: cart_view.php");
-        exit;
+        } catch (Exception $e) {
+            $conn->rollback();
+            $_SESSION['message'] = "Error placing order: " . $e->getMessage();
+            header("Location: cart_view.php");
+            exit;
+        }
     }
 }
 
-} // end POST
-
-
-// Now include header
 include('../includes/header.php');
-
 ?>
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Checkout</h1>
 
     <?php if (!empty($cart_items)): ?>
-    <form action="" method="POST" id="checkout-form"> <!-- For updates & place order, submit to same page -->
-
+    <form action="" method="POST" id="checkout-form">
         <div class="row">
             <!-- LEFT SIDE -->
             <div class="col-lg-7 mb-1 mt-3">
-                <div class="card shadow-sm p-4">
-                    <h4>Order Summary</h4>
-                </div>
                 <!-- Customer Info Card -->
-                <div class="card shadow-sm p-4 mb-4 mt-3 d-flex flex-row align-items-start">
+                <div class="card shadow-sm p-4 mb-4 d-flex flex-row align-items-start">
                     <div class="text-center ms-4 me-5 mt-2 mb-2" style="width:180px; flex-shrink:0; padding:10px;">
                         <img src="../assets/images/users/<?= htmlspecialchars($user['profile_picture'] ?: 'default.png') ?>" 
                              class="rounded-circle border" width="150" height="150" alt="Profile">
@@ -255,15 +235,21 @@ include('../includes/header.php');
                                 <small class="text-muted" style="font-size:0.95rem;">(<?= htmlspecialchars($user['username']) ?>)</small>
                             </h5>
                             <p class="mb-1 mt-3" style="font-size:0.95rem;">
-                                <?= htmlspecialchars($user['address'] ?? '-') ?>, <?= htmlspecialchars($user['town'] ?? '-') ?>, <?= htmlspecialchars($user['zipcode'] ?? '-') ?>
-                            </p>
-                            <p class="mb-1" style="font-size:0.95rem;">
                                 <?= htmlspecialchars($user['email']) ?> | <?= htmlspecialchars($user['phone'] ?? '-') ?>
                             </p>
                             <div class="d-flex justify-content-between align-items-center mt-3"> 
                                 <a href="../user/profile.php" class="btn btn-outline-primary btn-sm">Edit Info</a>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address Card -->
+                <div class="card shadow-sm p-4 mb-4">
+                    <h4>Shipping Address</h4>
+                    <hr>
+                    <div class="mb-3">
+                        <textarea name="shipping_address" class="form-control" rows="3" required><?= htmlspecialchars($shipping_address) ?></textarea>
                     </div>
                 </div>
 
@@ -342,9 +328,7 @@ include('../includes/header.php');
                     <div class="d-flex gap-2">
                         <button type="submit" name="update_totals" class="btn btn-primary">Update</button>
                         <input type="hidden" name="place_order" value="1">
-                        <button type="submit" name="place_order" class="btn btn-success">
-                            Place Order
-                        </button>
+                        <button type="submit" name="place_order" class="btn btn-success">Place Order</button>
                     </div>
                 </div>
             </div>

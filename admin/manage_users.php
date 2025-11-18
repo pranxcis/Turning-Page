@@ -22,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_type'])) {
             $stmt = $conn->prepare("UPDATE users SET role = ? WHERE id = ?");
             $stmt->bind_param("si", $role, $user_id);
             $stmt->execute();
+            $stmt->close();
             $_SESSION['message'] = "User role updated.";
         }
 
@@ -29,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_type'])) {
             $stmt = $conn->prepare("UPDATE users SET status = NOT status WHERE id = ?");
             $stmt->bind_param("i", $user_id);
             $stmt->execute();
+            $stmt->close();
             $_SESSION['message'] = "User status updated.";
         }
     }
@@ -111,99 +113,88 @@ include('../includes/header.php');
             <?php unset($_SESSION['message']); ?>
         <?php endif; ?>
 
-<!-- User Cards -->
-<div class="row g-3">
-    <?php if (!empty($users)): ?>
-        <?php foreach ($users as $user): ?>
-            <div class="col-12">
-                <div class="card shadow-sm p-4">
-                    <div class="d-flex align-items-center mb-1">
-                        <!-- Profile Image -->
-                        <div class="text-center me-5 ms-3" style="width:250px; flex-shrink:0; padding:10px;">
-                            <img src="../assets/images/users/<?= $user['profile_picture'] ?: 'default.png' ?>" 
-                                 class="rounded border" width="220" height="220" alt="Profile">
-                        </div>
+        <!-- User Cards -->
+        <div class="row g-3">
+            <?php if (!empty($users)): ?>
+                <?php foreach ($users as $user): ?>
+                    <div class="col-12">
+                        <div class="card shadow-sm p-4">
+                            <div class="d-flex align-items-center mb-1">
+                                <!-- Profile Image -->
+                                <div class="text-center me-5 ms-3" style="width:250px; flex-shrink:0; padding:10px;">
+                                    <img src="../assets/images/users/<?= $user['profile_picture'] ?: 'default.png' ?>" 
+                                         class="rounded border" width="220" height="220" alt="Profile">
+                                </div>
 
-                        <!-- Name, Role, Address, Contact, Status/Joined -->
-                        <div class="flex-grow-1 d-flex flex-column justify-content-between" style="min-height:180px;">
+                                <!-- Name, Role, Address, Contact, Status/Joined -->
+                                <div class="flex-grow-1 d-flex flex-column justify-content-between" style="min-height:180px;">
+                                    <div>
+                                        <h5 class="mb-1 fw-bold" style="font-size:1.35rem;">
+                                            <?= htmlspecialchars($user['last_name'] . ', ' . $user['first_name']) ?>
+                                            <small class="text-muted" style="font-size:0.95rem;">(<?= htmlspecialchars($user['username']) ?>)</small>
+                                        </h5>
 
-                            <!-- Name and Role -->
-                            <div>
-                                <h5 class="mb-1 fw-bold" style="font-size:1.35rem;">
-                                    <?= htmlspecialchars($user['last_name'] . ', ' . $user['first_name']) ?>
-                                    <small class="text-muted" style="font-size:0.95rem;">(<?= htmlspecialchars($user['username']) ?>)</small>
-                                </h5>
-                                <!-- Role Dropdown -->
-                                <form method="POST" class="d-inline">
-                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                    <input type="hidden" name="action_type" value="update_role">
-                                    <select name="role" class="form-select form-select-sm" onchange="this.form.submit()" style="width:auto; display:inline-block; font-size:0.95rem;">
-                                        <option value="customer" <?= $user['role'] === 'customer' ? 'selected' : '' ?>>Customer</option>
-                                        <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
-                                    </select>
-                                </form>
+                                        <!-- Role Dropdown -->
+                                        <form method="POST" class="d-inline">
+                                            <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                            <input type="hidden" name="action_type" value="update_role">
+                                            <select name="role" class="form-select form-select-sm" onchange="this.form.submit()" style="width:auto; display:inline-block; font-size:0.95rem;">
+                                                <option value="customer" <?= $user['role'] === 'customer' ? 'selected' : '' ?>>Customer</option>
+                                                <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                                            </select>
+                                        </form>
 
+                                        <!-- Address -->
+                                        <p class="mb-1 mt-4" style="font-size:0.95rem;">
+                                            <?= htmlspecialchars($user['address'] ?? '-') ?>, <?= htmlspecialchars($user['town'] ?? '-') ?>, <?= htmlspecialchars($user['zipcode'] ?? '-') ?>
+                                        </p>
 
-                                <!-- Address -->
-                                <p class="mb-1 mt-4" style="font-size:0.95rem;">
-                                    <?= htmlspecialchars($user['address'] ?? '-') ?>, <?= htmlspecialchars($user['town'] ?? '-') ?>, <?= htmlspecialchars($user['zipcode'] ?? '-') ?>
-                                </p>
+                                        <!-- Email | Phone -->
+                                        <p class="mb-1" style="font-size:0.95rem;">
+                                            <?= htmlspecialchars($user['email']) ?> | <?= htmlspecialchars($user['phone'] ?? '-') ?>
+                                        </p>
+                                    </div>
 
-                                <!-- Email | Phone -->
-                                <p class="mb-1" style="font-size:0.95rem;">
-                                    <?= htmlspecialchars($user['email']) ?> | <?= htmlspecialchars($user['phone'] ?? '-') ?>
-                                </p>
+                                    <!-- Status | Joined -->
+                                    <div class="d-flex justify-content-start gap-3 mt-2 align-items-center">
+                                        <span class="fw-bold" style="font-size:0.95rem;">Status:</span>
+                                        <span class="badge <?= $user['status'] ? 'bg-success' : 'bg-danger' ?>" style="font-size:0.85rem;">
+                                            <?= $user['status'] ? 'Active' : 'Deactivated' ?>
+                                        </span>
+                                        <span class="fw-bold ms-3" style="font-size:0.95rem;">Joined:</span>
+                                        <span style="font-size:0.9rem;"><?= date('F d, Y', strtotime($user['created_at'])) ?></span>
+                                    </div>
+                                </div>
+
+                                <!-- Action Icons -->
+                                <div class="d-flex flex-row align-items-center pe-3 ms-4" style="gap:10px; min-width:50px;">
+                                    <a href="users/edit_user.php?id=<?= $user['id'] ?>" class="text-decoration-none text-dark pe-4" title="Edit">
+                                        <i class="fas fa-edit fa-lg"></i>
+                                    </a>
+                                    <a href="users/delete_user.php?id=<?= $user['id'] ?>" class="text-decoration-none text-dark pe-4" title="Delete">
+                                        <i class="fas fa-trash fa-lg"></i>
+                                    </a>
+                                    <form method="POST" class="m-0 p-0">
+                                        <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                        <input type="hidden" name="action_type" value="toggle_status">
+                                        <button type="submit" class="btn p-0 border-0 text-dark pe-4" title="<?= $user['status'] ? 'Deactivate' : 'Activate' ?>">
+                                            <i class="fas <?= $user['status'] ? 'fa-user-slash' : 'fa-user-check' ?> fa-lg"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
-
-                            <!-- Status | Joined at bottom -->
-                            <div class="d-flex justify-content-start gap-3 mt-2 align-items-center">
-                                <span class="fw-bold" style="font-size:0.95rem;">
-                                    Status:
-                                </span>
-                                <span class="badge <?= $user['status'] ? 'bg-success' : 'bg-danger' ?>" style="font-size:0.85rem;">
-                                    <?= $user['status'] ? 'Active' : 'Deactivated' ?>
-                                </span>
-                                <span class="fw-bold ms-3" style="font-size:0.95rem;">
-                                    Joined:
-                                </span>
-                                <span style="font-size:0.9rem;">
-                                    <?= date('F d, Y', strtotime($user['created_at'])) ?>
-                                </span>
-                            </div>
-                        </div>
-
-
-                        <!-- Action Icons -->
-                        <div class="d-flex flex-row align-items-center pe-3 ms-4" style="gap:10px; min-width:50px;">
-                            <a href="edit_user.php?id=<?= $user['id'] ?>" class="text-decoration-none text-dark pe-4" title="Edit">
-                                <i class="fas fa-edit fa-lg"></i>
-                            </a>
-                            <a href="delete_user.php?id=<?= $user['id'] ?>" class="text-decoration-none text-dark pe-4" title="Delete">
-                                <i class="fas fa-trash fa-lg"></i>
-                            </a>
-                            <form method="POST" class="m-0 p-0">
-                                <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
-                                <input type="hidden" name="action_type" value="toggle_status">
-                                <button type="submit" class="btn p-0 border-0 text-dark pe-4" title="<?= $user['status'] ? 'Deactivate' : 'Activate' ?>">
-                                    <i class="fas <?= $user['status'] ? 'fa-user-slash' : 'fa-user-check' ?> fa-lg"></i>
-                                </button>
-                            </form>
                         </div>
                     </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12">
+                    <div class="alert alert-info text-center">No users found.</div>
                 </div>
-            </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <div class="col-12">
-            <div class="alert alert-info text-center">No users found.</div>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
-</div>
 
-<!-- Include Font Awesome if not already loaded -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     </div>
 </div>
 

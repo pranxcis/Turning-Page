@@ -91,10 +91,10 @@ $reviewCount = mysqli_num_rows($result);
 
                             <!-- ACTIONS -->
                             <div class="d-flex flex-column align-items-center ms-3" style="gap:10px; min-width:50px;">
-                                <a href="edit_review.php?id=<?= $review['review_id'] ?>" class="text-decoration-none text-dark" title="Edit">
+                                <a href="reviews/edit_review.php?id=<?= $review['review_id'] ?>" class="text-decoration-none text-dark" title="Edit">
                                     <i class="fas fa-edit fa-lg"></i>
                                 </a>
-                                <a href="delete_review.php?id=<?= $review['review_id'] ?>" class="text-decoration-none text-dark" title="Delete" onclick="return confirm('Are you sure you want to delete this review?');">
+                                <a href="reviews/delete_review.php?id=<?= $review['review_id'] ?>" class="text-decoration-none text-dark" title="Delete" onclick="return confirm('Are you sure you want to delete this review?');">
                                     <i class="fas fa-trash fa-lg"></i>
                                 </a>
                             </div>

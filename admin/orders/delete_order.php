@@ -1,31 +1,33 @@
 <?php
 session_start();
-include('../includes/header.php');
-include('../config/database.php');
+include('../../config/database.php');
 
-// ADMIN ONLY
+// Admin access only
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-$orderId = intval($_GET['id'] ?? 0);
-if ($orderId > 0) {
-    // Delete order items first
-    mysqli_query($conn, "DELETE FROM order_items WHERE order_id = $orderId");
-
-    // Delete transaction
-    mysqli_query($conn, "DELETE FROM transactions WHERE order_id = $orderId");
-
-    // Delete order
-    mysqli_query($conn, "DELETE FROM orders WHERE id = $orderId");
-
-    $_SESSION['message'] = "Order #$orderId deleted successfully.";
-} else {
+$order_id = intval($_GET['id'] ?? 0);
+if ($order_id <= 0) {
     $_SESSION['message'] = "Invalid order ID.";
+    header("Location: ../manage_orders.php");
+    exit;
 }
 
-header("Location: ../admin/manage_orders.php");
+// Delete order items first (foreign key safety)
+$stmt = $conn->prepare("DELETE FROM order_items WHERE order_id=?");
+$stmt->bind_param("i", $order_id);
+$stmt->execute();
+$stmt->close();
+
+// Delete order itself
+$stmt = $conn->prepare("DELETE FROM orders WHERE id=?");
+$stmt->bind_param("i", $order_id);
+$stmt->execute();
+$stmt->close();
+
+$_SESSION['message'] = "Order deleted successfully.";
+header("Location: ../manage_orders.php");
 exit;
-?>

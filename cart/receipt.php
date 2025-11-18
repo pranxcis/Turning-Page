@@ -1,85 +1,121 @@
 <?php
 session_start();
-// Ensure user is logged in
-if (!isset($_SESSION['user'])) {
-    $_SESSION['message'] = "Please login to continue to checkout.";
+include('../config/database.php');
+
+// Make sure the user is logged in
+if (!isset($_SESSION['user']['id'])) {
+    $_SESSION['message'] = "Please login to view your order receipt.";
     header("Location: ../login.php");
     exit;
 }
-include('../includes/header.php');
-include('../config/database.php');
 
+$user_id = $_SESSION['user']['id'];
+
+// Get the latest order for this user
 $order_id = intval($_GET['order_id'] ?? 0);
 if ($order_id <= 0) {
-    echo "<div class='container my-4'><p>Invalid order ID.</p></div>";
-    include('../includes/footer.php');
+    $_SESSION['message'] = "Invalid order.";
+    header("Location: ../shop/index.php");
     exit;
 }
 
-// Fetch order info
-$stmt = $conn->prepare("SELECT * FROM orders WHERE id = ? LIMIT 1");
-$stmt->bind_param('i', $order_id);
+// Fetch order details
+$stmt = $conn->prepare("
+    SELECT o.*, up.first_name, up.last_name, u.username, u.email
+    FROM orders o
+    JOIN users u ON o.user_id = u.id
+    LEFT JOIN user_profiles up ON u.id = up.user_id
+    WHERE o.id = ? AND o.user_id = ?
+    LIMIT 1
+");
+$stmt->bind_param("ii", $order_id, $user_id);
 $stmt->execute();
 $order = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
 if (!$order) {
-    echo "<div class='container my-4'><p>Order not found.</p></div>";
-    include('../includes/footer.php');
+    $_SESSION['message'] = "Order not found.";
+    header("Location: ../shop/index.php");
     exit;
 }
 
 // Fetch order items
-$stmt_items = $conn->prepare("SELECT oi.*, b.title, b.price FROM order_items oi JOIN books b ON oi.book_id = b.id WHERE oi.order_id = ?");
-$stmt_items->bind_param('i', $order_id);
-$stmt_items->execute();
-$items_res = $stmt_items->get_result();
-$items = [];
-while ($row = $items_res->fetch_assoc()) {
-    $items[] = $row;
+$stmt = $conn->prepare("
+    SELECT oi.*, b.title, b.image
+    FROM order_items oi
+    JOIN books b ON oi.book_id = b.id
+    WHERE oi.order_id = ?
+");
+$stmt->bind_param("i", $order_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$order_items = [];
+while ($row = $result->fetch_assoc()) {
+    $row['line_total'] = $row['quantity'] * $row['price'];
+    $order_items[] = $row;
 }
-$stmt_items->close();
+$stmt->close();
+
+include('../includes/header.php');
 ?>
 
 <div class="container my-5">
-    <h1 class="text-center mb-4">Receipt — Order #<?= $order_id ?></h1>
+    <div class="text-center mb-4">
+        <h1 class="text-success">Your Order Was Successful!</h1>
+        <p>Thank you for shopping with Turning Page. Your order has been placed successfully.</p>
+        <h4>Order #<?= $order['id'] ?></h4>
+        <p>Status: <strong><?= htmlspecialchars($order['status']) ?></strong></p>
+    </div>
 
-    <h4>Customer Info</h4>
-    <p>Name: <?= htmlspecialchars($order['fullname']) ?><br>
-       Email: <?= htmlspecialchars($order['email']) ?><br>
-       Phone: <?= htmlspecialchars($order['phone']) ?><br>
-       Address: <?= htmlspecialchars($order['address']) ?></p>
+    <div class="card shadow-sm p-4 mb-4">
+        <h4>Shipping Information</h4>
+        <hr>
+        <p><strong>Name:</strong> <?= htmlspecialchars($order['first_name'] . ' ' . $order['last_name']) ?></p>
+        <p><strong>Email:</strong> <?= htmlspecialchars($order['email']) ?></p>
+        <p><strong>Shipping Address:</strong> <?= htmlspecialchars($order['shipping_address']) ?></p>
+        <p><strong>Shipping Method:</strong> <?= htmlspecialchars($order['shipping_method']) ?></p>
+    </div>
 
-    <h4>Order Items</h4>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Book</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php 
-        $subtotal = 0;
-        foreach ($items as $it): 
-            $total = $it['price'] * $it['quantity'];
-            $subtotal += $total;
-        ?>
-            <tr>
-                <td><?= htmlspecialchars($it['title']) ?></td>
-                <td><?= $it['quantity'] ?></td>
-                <td>₱<?= number_format($it['price'],2) ?></td>
-                <td>₱<?= number_format($total,2) ?></td>
-            </tr>
-        <?php endforeach; ?>
-        </tbody>
-    </table>
+    <div class="card shadow-sm p-4 mb-4">
+        <h4>Order Items</h4>
+        <hr>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach($order_items as $item): ?>
+                <tr>
+                    <td>
+                        <img src="../assets/images/books/<?= htmlspecialchars($item['image'] ?? 'default_book.png') ?>" 
+                             style="width:50px;height:70px;object-fit:cover;" class="me-2">
+                        <?= htmlspecialchars($item['title']) ?>
+                    </td>
+                    <td><?= $item['quantity'] ?></td>
+                    <td>₱<?= number_format($item['price'], 2) ?></td>
+                    <td>₱<?= number_format($item['line_total'], 2) ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
-    <p style="text-align:right;">Subtotal: <strong>₱<?= number_format($subtotal,2) ?></strong></p>
-    <p style="text-align:right;">Shipping: <strong>₱<?= number_format($order['shipping'],2) ?></strong></p>
-    <p style="text-align:right;">Grand Total: <strong>₱<?= number_format($subtotal + $order['shipping'],2) ?></strong></p>
+        <div class="text-end mt-3">
+            <p>Subtotal: ₱<?= number_format($order['subtotal'], 2) ?></p>
+            <p>Shipping: ₱<?= number_format($order['shipping_fee'], 2) ?></p>
+            <p>Discount: ₱<?= number_format($order['subtotal'] + $order['shipping_fee'] - $order['total'], 2) ?></p>
+            <h5>Total: ₱<?= number_format($order['total'], 2) ?></h5>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a href="../shop/index.php" class="btn btn-primary">Continue Shopping</a>
+        <a href="../user/order_history.php" class="btn btn-secondary">View Order History</a>
+    </div>
 </div>
 
 <?php include('../includes/footer.php'); ?>

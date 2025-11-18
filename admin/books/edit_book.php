@@ -34,16 +34,29 @@ if (!$book) {
 $authors = mysqli_query($conn, "SELECT id, name FROM authors ORDER BY name ASC");
 
 // Load previous input values if validation failed
-$titleValue      = $_SESSION['form_title']      ?? $book['title'];
-$authorValue     = $_SESSION['form_author']     ?? $book['author_id'];
-$genreValue      = $_SESSION['form_genre']      ?? $book['genre'];
-$setPriceValue   = $_SESSION['form_set_price']  ?? $book['set_price'];
-$priceValue      = $_SESSION['form_price']      ?? $book['price'];
-$descValue       = $_SESSION['form_description']?? $book['description'];
-$conditionValue  = $_SESSION['form_condition']  ?? $book['condition'];
-$stockValue      = $_SESSION['form_stock']      ?? $book['stock'];
+$titleValue      = $_SESSION['form_title']       ?? $book['title'];
+$authorValue     = $_SESSION['form_author']      ?? $book['author_id'];
+$genreValue      = $_SESSION['form_genre']       ?? $book['genre']; // stored as comma-separated string
+$setPriceValue   = $_SESSION['form_set_price']   ?? $book['set_price'];
+$priceValue      = $_SESSION['form_price']       ?? $book['price'];
+$descValue       = $_SESSION['form_description'] ?? $book['description'];
+$conditionValue  = $_SESSION['form_condition']   ?? $book['condition'];
+$stockValue      = $_SESSION['form_stock']       ?? $book['stock'];
 
-unset($_SESSION['form_title'], $_SESSION['form_author'], $_SESSION['form_genre'], $_SESSION['form_set_price'], $_SESSION['form_price'], $_SESSION['form_description'], $_SESSION['form_condition'], $_SESSION['form_stock']);
+// Split genre into array for checkboxes
+$selectedGenres = explode(',', $genreValue);
+
+// Clear previous form session data
+unset(
+    $_SESSION['form_title'],
+    $_SESSION['form_author'],
+    $_SESSION['form_genre'],
+    $_SESSION['form_set_price'],
+    $_SESSION['form_price'],
+    $_SESSION['form_description'],
+    $_SESSION['form_condition'],
+    $_SESSION['form_stock']
+);
 ?>
 
 <div class="container my-5">
@@ -76,14 +89,21 @@ unset($_SESSION['form_title'], $_SESSION['form_author'], $_SESSION['form_genre']
                 <?php unset($_SESSION['err_author']); ?>
             </div>
 
-            <!-- GENRE -->
+            <!-- GENRE (MULTIPLE) -->
             <div class="col-md-6">
                 <label>Genre</label>
-                <input type="text" name="genre" class="form-control" value="<?= htmlspecialchars($genreValue) ?>">
+                <select name="genre" class="form-control">
+                    <option value="">-- Select Genre --</option>
+                    <?php 
+                        $genres = ["Fiction", "Non-Fiction", "None"];
+                        foreach ($genres as $genre): 
+                    ?>
+                        <option value="<?= $genre ?>" <?= ($genreValue == $genre) ? "selected" : "" ?>><?= $genre ?></option>
+                    <?php endforeach; ?>
+                </select>
                 <small class="text-danger"><?= $_SESSION['err_genre'] ?? '' ?></small>
                 <?php unset($_SESSION['err_genre']); ?>
             </div>
-
             <!-- PRICES -->
             <div class="col-md-6">
                 <label>Original Price (Set Price)</label>
@@ -99,21 +119,23 @@ unset($_SESSION['form_title'], $_SESSION['form_author'], $_SESSION['form_genre']
                 <?php unset($_SESSION['err_price']); ?>
             </div>
 
-            <!-- CONDITION & STOCK -->
+            <!-- CONDITION -->
             <div class="col-md-6">
                 <label>Condition</label>
                 <select name="condition" class="form-control">
                     <option value="">-- Select Condition --</option>
-                    <option value="New" <?= ($conditionValue=="New")?"selected":"" ?>>New</option>
-                    <option value="Like New" <?= ($conditionValue=="Like New")?"selected":"" ?>>Like New</option>
-                    <option value="Very Good" <?= ($conditionValue=="Very Good")?"selected":"" ?>>Very Good</option>
-                    <option value="Good" <?= ($conditionValue=="Good")?"selected":"" ?>>Good</option>
-                    <option value="Fair" <?= ($conditionValue=="Fair")?"selected":"" ?>>Fair</option>
+                    <?php 
+                        $conditions = ["New", "Used", "Collectible"];
+                        foreach ($conditions as $cond): 
+                    ?>
+                        <option value="<?= $cond ?>" <?= ($conditionValue == $cond) ? "selected" : "" ?>><?= $cond ?></option>
+                    <?php endforeach; ?>
                 </select>
                 <small class="text-danger"><?= $_SESSION['err_condition'] ?? '' ?></small>
                 <?php unset($_SESSION['err_condition']); ?>
             </div>
 
+            <!-- STOCK -->
             <div class="col-md-6">
                 <label>Stock</label>
                 <input type="number" name="stock" class="form-control" value="<?= htmlspecialchars($stockValue) ?>">
@@ -129,9 +151,9 @@ unset($_SESSION['form_title'], $_SESSION['form_author'], $_SESSION['form_genre']
                 <?php unset($_SESSION['err_description']); ?>
             </div>
 
-            <!-- IMAGE -->
+            <!-- MAIN IMAGE -->
             <div class="col-12">
-                <label>Book Image</label>
+                <label>Main Book Image</label>
                 <input type="file" name="image" class="form-control">
                 <small class="text-danger"><?= $_SESSION['err_image'] ?? '' ?></small>
                 <?php unset($_SESSION['err_image']); ?>
@@ -140,6 +162,12 @@ unset($_SESSION['form_title'], $_SESSION['form_author'], $_SESSION['form_genre']
                         <img src="../../assets/images/books/<?= $book['image'] ?>" width="100" height="120" alt="<?= htmlspecialchars($book['title']) ?>">
                     </div>
                 <?php endif; ?>
+            </div>
+
+            <!-- ADDITIONAL IMAGES -->
+            <div class="col-12">
+                <label>Additional Images</label>
+                <input type="file" name="additional_images[]" class="form-control" multiple>
             </div>
 
             <!-- BUTTONS -->

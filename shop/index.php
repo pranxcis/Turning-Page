@@ -59,10 +59,11 @@ $filter = $_GET['filter'] ?? 'all';
 $search = trim($_GET['search'] ?? '');
 
 if ($filter === 'authors') {
-    // Show authors list in a responsive grid (4-6 columns)
+    // Show authors list
     $sql = "SELECT * FROM authors";
     if (!empty($search)) {
-        $sql .= " WHERE name LIKE '%".$conn->real_escape_string($search)."%'"; 
+        $searchEscaped = $conn->real_escape_string($search);
+        $sql .= " WHERE name LIKE '%$searchEscaped%' OR bio LIKE '%$searchEscaped%'";
         $pageHeading = "Author Search Results for '".htmlspecialchars($search)."'";
     } else {
         $pageHeading = "Authors";
@@ -101,23 +102,27 @@ if ($filter === 'authors') {
         LEFT JOIN reviews r ON r.book_id = b.id
     ";
     $conditions = [];
+    $having = [];
     $orderBy = "b.title ASC";
 
-        switch ($filter) {
-            case 'fiction': $conditions[]="b.genre='Fiction'"; $pageHeading="Fiction"; break;
-            case 'nonfiction': $conditions[]="b.genre='Non-Fiction'"; $pageHeading="Non-Fiction"; break;
-            case 'availability': $conditions[]="b.stock>0"; $pageHeading="In Stock"; break;
-            case 'top_picks': $sql.=" JOIN order_items oi ON b.id=oi.book_id"; $orderBy="SUM(oi.quantity) DESC"; $pageHeading="Top Picks"; break;
-            case 'new_arrivals': $orderBy="b.created_at DESC"; $pageHeading="New Arrival"; break;
-            case 'rating_5': $having[]="AVG(r.rating)=5"; $pageHeading="5 Stars"; break;
-            case 'rating_4': $having[]="AVG(r.rating)>=4"; $pageHeading="4 Stars & Up"; break;
-            case 'rating_3': $having[]="AVG(r.rating)>=3"; $pageHeading="3 Stars & Up"; break;
-            case 'all':
-            default: $pageHeading="All Books"; break;
-        }
+    // Filters
+    switch ($filter) {
+        case 'fiction': $conditions[]="b.genre='Fiction'"; $pageHeading="Fiction"; break;
+        case 'nonfiction': $conditions[]="b.genre='Non-Fiction'"; $pageHeading="Non-Fiction"; break;
+        case 'availability': $conditions[]="b.stock>0"; $pageHeading="In Stock"; break;
+        case 'top_picks': $sql.=" JOIN order_items oi ON b.id=oi.book_id"; $orderBy="SUM(oi.quantity) DESC"; $pageHeading="Top Picks"; break;
+        case 'new_arrivals': $orderBy="b.created_at DESC"; $pageHeading="New Arrival"; break;
+        case 'rating_5': $having[]="AVG(r.rating)=5"; $pageHeading="5 Stars"; break;
+        case 'rating_4': $having[]="AVG(r.rating)>=4"; $pageHeading="4 Stars & Up"; break;
+        case 'rating_3': $having[]="AVG(r.rating)>=3"; $pageHeading="3 Stars & Up"; break;
+        case 'all':
+        default: $pageHeading="All Books"; break;
+    }
 
+    // Simple search: title, author, genre, description
     if (!empty($search)) {
-        $conditions[] = "(b.title LIKE '%".$conn->real_escape_string($search)."%' OR a.name LIKE '%".$conn->real_escape_string($search)."%')";
+        $searchEscaped = $conn->real_escape_string($search);
+        $conditions[] = "(b.title LIKE '%$searchEscaped%' OR a.name LIKE '%$searchEscaped%' OR b.genre LIKE '%$searchEscaped%' OR b.description LIKE '%$searchEscaped%')";
         $pageHeading = "Search Results for '".htmlspecialchars($search)."'";
     }
 

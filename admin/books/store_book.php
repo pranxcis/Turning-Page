@@ -19,9 +19,8 @@ $description  = trim($_POST['description'] ?? '');
 $condition    = trim($_POST['condition'] ?? '');
 $stock        = trim($_POST['stock'] ?? '');
 
-// Basic validation (simplified)
+// Basic validation
 $errors = [];
-
 if ($title === '')         $errors['err_title'] = "Title is required.";
 if ($author_id === '')     $errors['err_author'] = "Author is required.";
 if ($genre === '')         $errors['err_genre'] = "Genre is required.";
@@ -38,14 +37,14 @@ if (!empty($errors)) {
     foreach ($errors as $k => $v) $_SESSION[$k] = $v;
 
     // persist input values
-    $_SESSION['form_title']      = $title;
-    $_SESSION['form_author']     = $author_id;
-    $_SESSION['form_genre']      = $genre;
-    $_SESSION['form_set_price']  = $set_price;
-    $_SESSION['form_price']      = $price;
-    $_SESSION['form_description']= $description;
-    $_SESSION['form_condition']  = $condition;
-    $_SESSION['form_stock']      = $stock;
+    $_SESSION['form_title']       = $title;
+    $_SESSION['form_author']      = $author_id;
+    $_SESSION['form_genre']       = $genre;
+    $_SESSION['form_set_price']   = $set_price;
+    $_SESSION['form_price']       = $price;
+    $_SESSION['form_description'] = $description;
+    $_SESSION['form_condition']   = $condition;
+    $_SESSION['form_stock']       = $stock;
 
     header("Location: add_book.php");
     exit;
@@ -57,7 +56,7 @@ if (!empty($errors)) {
 $mainImageName = null;
 
 if (!empty($_FILES['image']['name'])) {
-    $uploadDir = "../../assets/uploads/books/";
+    $uploadDir = "../../assets/images/books/";
 
     // Create folder if not exists
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
@@ -97,7 +96,7 @@ $stmt->close();
 // ----------------------
 if (!empty($_FILES['additional_images']['name'][0])) {
 
-    $uploadDir = "../../assets/uploads/book_images/";
+    $uploadDir = "../../assets/images/books/";
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
     foreach ($_FILES['additional_images']['name'] as $index => $filename) {
@@ -122,5 +121,4 @@ if (!empty($_FILES['additional_images']['name'][0])) {
 $_SESSION['message'] = "Book added successfully!";
 header("Location: ../manage_books.php");
 exit;
-
 ?>
