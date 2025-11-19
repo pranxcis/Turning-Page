@@ -3,6 +3,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+$base_url = '/TurningPage/'; 
+
+
 // Login + Role
 $isLoggedIn = isset($_SESSION['user']);
 $isAdmin   = $isLoggedIn && ($_SESSION['user']['role'] ?? '') === 'admin';

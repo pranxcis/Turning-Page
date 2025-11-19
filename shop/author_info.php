@@ -33,15 +33,15 @@ $stmt->close();
 // Fetch books by this author along with first image
 $books_stmt = $conn->prepare("
     SELECT b.id, b.title, b.genre, b.price, b.stock, 
-           COALESCE(bi.image_path, 'default.jpg') AS image
+           COALESCE(b.image, 'default.jpg') AS image
     FROM books b
     LEFT JOIN (
         SELECT book_id, image_path
         FROM book_images
         GROUP BY book_id
     ) bi ON bi.book_id = b.id
-    WHERE b.author_id = ?
-    ORDER BY b.created_at DESC
+        WHERE b.author_id = ?
+        ORDER BY b.created_at DESC
 ");
 $books_stmt->bind_param('i', $author_id);
 $books_stmt->execute();

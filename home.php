@@ -19,14 +19,18 @@ include 'config/database.php';
 <div class="container my-5">
 
 <?php
-// Helper function to render book cards
+
 function renderBookCard($row) {
-    $image = !empty($row['image']) ? $row['image'] : 'default.jpg';
+    $imagePath = 'assets/images/books/';
+
+    // Use the DB image if it exists; otherwise use default.jpg
+    $image = (isset($row['image']) && !empty($row['image'])) ? $row['image'] : 'default.jpg';
+
     ?>
     <li class="col-md-3 mb-4">
         <a href="shop/book_info.php?book_id=<?php echo $row['id']; ?>" class="text-decoration-none text-dark">
             <div class="card h-100 shadow-sm">
-                <img src="assets/images/books/<?php echo $image; ?>" 
+                <img src="<?php echo $imagePath . $image; ?>" 
                      class="card-img-top" 
                      alt="<?php echo htmlspecialchars($row['title']); ?>" 
                      style="height:400px; object-fit:cover; border-radius:8px;">
@@ -41,6 +45,7 @@ function renderBookCard($row) {
     </li>
     <?php
 }
+
 ?>
 
 <!-- NEW RELEASES -->
