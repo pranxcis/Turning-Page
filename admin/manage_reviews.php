@@ -1,12 +1,11 @@
 <?php
 session_start();
 $pageTitle = "Manage Reviews";
-include('../includes/header.php');
 include('../config/database.php');
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
-    header("Location: ../login.php");
+    header("Location: ../user/login.php");
     exit;
 }
 
@@ -31,6 +30,8 @@ $sql .= " ORDER BY r.created_at DESC";
 
 $result = mysqli_query($conn, $sql);
 $reviewCount = mysqli_num_rows($result);
+
+include('../includes/header.php');
 ?>
 
 <div class="d-flex">

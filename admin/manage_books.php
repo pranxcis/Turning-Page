@@ -1,11 +1,10 @@
 <?php
 session_start();
-include('../includes/header.php');
 include('../config/database.php');
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
-    header("Location: ../login.php");
+    header("Location: ../user/login.php");
     exit;
 }
 
@@ -27,6 +26,8 @@ if ($keyword) {
 
 $result = mysqli_query($conn, $sql);
 $bookCount = mysqli_num_rows($result);
+
+include('../includes/header.php');
 ?>
 
 <div class="d-flex">
