@@ -1,7 +1,6 @@
 <?php
 session_start();
 include("../config/database.php");  
-include("../includes/header.php");  
 
 if (isset($_POST['submit'])) {
     $email = trim($_POST['email']);
@@ -16,6 +15,12 @@ if (isset($_POST['submit'])) {
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['message'] = 'Invalid email format.';
+        header("Location: register.php");
+        exit();
+    }
+
+    if (strlen($password) < 8 || !preg_match('/[A-Z]/', $password) || !preg_match('/[a-z]/', $password) || !preg_match('/\d/', $password)) {
+        $_SESSION['message'] = 'Password must be at least 8 characters with uppercase, lowercase, and a number.';
         header("Location: register.php");
         exit();
     }
