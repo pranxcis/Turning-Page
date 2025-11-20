@@ -2,7 +2,6 @@
   <div class="container">
     <div class="row">
 
-      <!-- Brand -->
       <div class="col-md-3 mb-4">
         <h5 class="fw-bold mb-3" style="color: #ffcc00;">Turning Page</h5>
         <p class="small text-light">
@@ -12,7 +11,6 @@
         </p>
       </div>
 
-      <!-- Quick Links -->
       <div class="col-md-2 mb-4">
         <h6 class="fw-bold mb-3" style="color: #ffcc00;">Quick Links</h6>
         <ul class="pb-2 list-unstyled">
@@ -27,14 +25,12 @@
         </ul>
       </div>
 
-      <!-- About -->
       <div class="col-md-3 mb-4">
         <h6 class="fw-bold mb-3" style="color: #ffcc00;">About</h6>
         <p class="small text-light"><strong>What We Do<br></strong> Turning Page connects readers with secondhand and collectible books, making rare finds accessible and affordable.</p>
         <p class="small text-light"><strong>What We Have<br></strong> Our collection includes used books, rare editions, and collectible volumes across multiple genres to suit every reader's taste.</p>
       </div>
 
-      <!-- Explore More -->
       <div class="col-md-2 mb-4">
         <h6 class="fw-bold mb-3" style="color: #ffcc00;">Explore More</h6>
         <ul class="list-unstyled">
@@ -43,7 +39,6 @@
         </ul>
       </div>
 
-      <!-- Socials -->
       <div class="col-md-2 mb-4">
         <h6 class="fw-bold mb-3" style="color: #ffcc00;">Socials</h6>
         <ul class="list-unstyled">

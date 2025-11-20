@@ -17,7 +17,6 @@ if ($review_id <= 0) {
     exit;
 }
 
-// Fetch review and book info
 $sql = "
     SELECT r.rating, r.review_text, b.id AS book_id, b.title, b.image
     FROM reviews r
@@ -38,7 +37,6 @@ if ($result->num_rows === 0) {
 
 $review = $result->fetch_assoc();
 
-// Handle form submission
 $message = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rating = intval($_POST['rating']);
@@ -73,7 +71,6 @@ include('../includes/header.php');
     <?php endif; ?>
 
     <div class="row">
-        <!-- Left: Book Image -->
         <div class="col-md-4 mb-3 pt-5 text-center">
             <?php if ($review['image']): ?>
                 <img src="../assets/images/books/<?= htmlspecialchars($review['image']) ?>" 
@@ -82,14 +79,11 @@ include('../includes/header.php');
             <?php endif; ?>
         </div>
 
-                <!-- Right: Edit Form -->
         <div class="col-md-8">
             <form method="POST" action="process_review.php">
-                <!-- Hidden inputs -->
                 <input type="hidden" name="review_id" value="<?= $review_id ?>">
                 <input type="hidden" name="book_id" value="<?= $review['book_id'] ?>">
 
-                <!-- Rating field -->
                 <div class="mb-3">
                     <label for="rating" class="form-label">Rating (1-5)</label>
                     <select name="rating" id="rating" class="form-select" required>
@@ -101,13 +95,11 @@ include('../includes/header.php');
                     </select>
                 </div>
 
-                <!-- Review textarea -->
                 <div class="mb-3">
                     <label for="review_text" class="form-label">Review</label>
                     <textarea name="review_text" id="review_text" rows="6" class="form-control" required><?= htmlspecialchars($review['review_text']) ?></textarea>
                 </div>
 
-                <!-- Buttons -->
                 <button type="submit" class="btn btn-primary">Update Review</button>
                 <a href="review_history.php" class="btn btn-secondary">Cancel</a>
             </form>

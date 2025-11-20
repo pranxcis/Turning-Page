@@ -3,7 +3,6 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// Get author ID from URL
 $author_id = isset($_GET['author_id']) ? intval($_GET['author_id']) : 0;
 if ($author_id <= 0) {
     echo "<div class='container my-4'><p>Invalid author selected.</p></div>";
@@ -11,7 +10,6 @@ if ($author_id <= 0) {
     exit;
 }
 
-// Fetch author details
 $stmt = $conn->prepare("
     SELECT id, name, bio
     FROM authors
@@ -30,7 +28,6 @@ if (!$result || $result->num_rows === 0) {
 $author = $result->fetch_assoc();
 $stmt->close();
 
-// Fetch books by this author along with first image
 $books_stmt = $conn->prepare("
     SELECT b.id, b.title, b.genre, b.price, b.stock, 
            COALESCE(b.image, 'default.jpg') AS image

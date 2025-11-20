@@ -3,9 +3,7 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// ------------------------
-// USER MUST BE LOGGED IN
-// ------------------------
+
 if (!isset($_SESSION['user'])) {
     $_SESSION['message'] = "Please login to view your order history.";
     header("Location: ../login.php");
@@ -14,9 +12,7 @@ if (!isset($_SESSION['user'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-// ------------------------
-// FETCH USER ORDERS WITH ITEM COUNT & TOTALS
-// ------------------------
+
 $sql = "
     SELECT 
         o.id, o.status, o.created_at,
@@ -45,7 +41,6 @@ $orderCount = $result->num_rows;
                 <div class="col-12">
                     <div class="card p-3 shadow-sm d-flex flex-row justify-content-between align-items-center">
 
-                        <!-- ORDER DETAILS -->
                         <div class="flex-grow-1">
                             <h5 class="mb-2">Order #<?= $order['id'] ?></h5>
 
@@ -83,7 +78,6 @@ $orderCount = $result->num_rows;
                             <p class="mb-1"><strong>Date:</strong> <?= date("F d, Y h:i A", strtotime($order['created_at'])) ?></p>
                         </div>
 
-                        <!-- VIEW BUTTON -->
                         <div class="d-flex flex-column ms-3">
                             <a href="order_view.php?id=<?= $order['id'] ?>" 
                                class="btn btn-outline-primary btn-sm">

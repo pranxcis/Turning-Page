@@ -2,9 +2,6 @@
 session_start();
 include('../config/database.php');
 
-// ------------------------
-// USER MUST BE LOGGED IN
-// ------------------------
 if (!isset($_SESSION['user'])) {
     $_SESSION['message'] = "Please login to add a review.";
     header("Location: ../login.php");
@@ -13,9 +10,6 @@ if (!isset($_SESSION['user'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-// ------------------------
-// VALIDATE BOOK ID
-// ------------------------
 $book_id = isset($_GET['book_id']) ? intval($_GET['book_id']) : 0;
 if ($book_id <= 0) {
     echo "<div class='container my-4'><p>Invalid book selected.</p></div>";
@@ -23,9 +17,6 @@ if ($book_id <= 0) {
     exit;
 }
 
-// ------------------------
-// CHECK IF USER PURCHASED THIS BOOK
-// ------------------------
 $sql_purchase = "
     SELECT COUNT(*) as purchased
     FROM order_items oi
@@ -44,15 +35,11 @@ if ($row_purchase['purchased'] == 0) {
     exit;
 }
 
-// ------------------------
-// HANDLE FORM SUBMISSION
-// ------------------------
 $message = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rating = intval($_POST['rating']);
     $review_text = trim($_POST['review_text']);
 
-    // Basic validation
     if ($rating < 1 || $rating > 5) {
         $message = "Rating must be between 1 and 5.";
     } elseif (empty($review_text)) {
@@ -71,9 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ------------------------
-// FETCH BOOK INFO FOR DISPLAY (title + image)
-// ------------------------
+
 $sql_book = "SELECT title, image FROM books WHERE id = ? LIMIT 1";
 $stmt_book = $conn->prepare($sql_book);
 $stmt_book->bind_param("i", $book_id);
@@ -93,7 +78,6 @@ include('../includes/header.php');
 
 
     <div class="row">
-        <!-- Left: Book Image -->
         <div class="col-md-4 mb-3 pt-5 text-center">
             <?php if ($book['image']): ?>
                 <img src="../assets/images/books/<?= htmlspecialchars($book['image']) ?>" 
@@ -103,13 +87,10 @@ include('../includes/header.php');
             <?php endif; ?>
         </div>
 
-        <!-- Right: Review Form -->
         <div class="col-md-8">
             <form method="POST" action="process_review.php">
-                <!-- Hidden book ID -->
                 <input type="hidden" name="book_id" value="<?= $book_id ?>">
 
-                <!-- Rating field -->
                 <div class="mb-3">
                     <label for="rating" class="form-label">Rating (1-5)</label>
                     <select name="rating" id="rating" class="form-select" required>
@@ -120,13 +101,11 @@ include('../includes/header.php');
                     </select>
                 </div>
 
-                <!-- Review textarea -->
                 <div class="mb-3">
                     <label for="review_text" class="form-label">Review</label>
                     <textarea name="review_text" id="review_text" rows="6" class="form-control" required></textarea>
                 </div>
 
-                <!-- Buttons -->
                 <button type="submit" class="btn btn-success">Submit Review</button>
                 <a href="order_history.php" class="btn btn-secondary">Cancel</a>
             </form>

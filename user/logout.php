@@ -5,7 +5,6 @@ $_SESSION = [];
 
 session_destroy();
 
-
 header("Location: /TurningPage/home.php");
 exit();
 ?>

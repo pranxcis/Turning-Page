@@ -3,16 +3,12 @@ session_start();
 include('../../includes/header.php');
 include('../../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Get order ID from URL
 $order_id = intval($_GET['id'] ?? 0);
 if ($order_id <= 0) {
     $_SESSION['message'] = "Invalid order ID.";
@@ -20,7 +16,6 @@ if ($order_id <= 0) {
     exit;
 }
 
-// Fetch order
 $stmt = $conn->prepare("SELECT id, status FROM orders WHERE id = ?");
 $stmt->bind_param("i", $order_id);
 $stmt->execute();
@@ -34,7 +29,6 @@ if (!$order) {
     exit;
 }
 
-// ENUM options
 $statuses = ['Pending','Paid','Shipped','Delivered','Cancelled'];
 ?>
 

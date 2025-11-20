@@ -17,7 +17,6 @@ if ($order_id <= 0) {
     exit;
 }
 
-// Fetch order info
 $stmt = $conn->prepare("
     SELECT o.*, u.username, u.email
     FROM orders o
@@ -36,7 +35,6 @@ if (!$order) {
     exit;
 }
 
-// Fetch order items
 $stmt = $conn->prepare("
     SELECT oi.*, b.title
     FROM order_items oi

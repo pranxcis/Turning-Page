@@ -21,9 +21,6 @@ $_SESSION['form_bio']  = $bio;
 
 $hasError = false;
 
-// ------------------------
-// VALIDATION
-// ------------------------
 if (empty($name)) {
     $_SESSION['err_name'] = "Please enter the author's name.";
     $hasError = true;
@@ -34,20 +31,15 @@ if (empty($bio)) {
     $hasError = true;
 }
 
-// Redirect back to form if there are errors
 if ($hasError) {
     header("Location: create_author.php");
     exit;
 }
 
-// ------------------------
-// INSERT INTO DATABASE
-// ------------------------
 $stmt = $conn->prepare("INSERT INTO authors (name, bio) VALUES (?, ?)");
 $stmt->bind_param("ss", $name, $bio);
 
 if ($stmt->execute()) {
-    // Clear session old values
     unset($_SESSION['form_name'], $_SESSION['form_bio']);
     $_SESSION['message'] = "Author added successfully!";
     header("Location: ../manage_authors.php");

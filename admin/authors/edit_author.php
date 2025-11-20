@@ -34,7 +34,6 @@ if (!$author) {
     exit;
 }
 
-// Load previous input values if any
 $nameValue = $_SESSION['form_name'] ?? $author['name'];
 $bioValue  = $_SESSION['form_bio']  ?? $author['bio'];
 
@@ -47,7 +46,6 @@ unset($_SESSION['form_name'], $_SESSION['form_bio']);
     <form method="POST" action="update_author.php">
         <input type="hidden" name="author_id" value="<?= $author['id'] ?>">
 
-        <!-- NAME -->
         <div class="mb-3">
             <label for="name" class="form-label">Author Name</label>
             <input type="text" name="name" class="form-control" id="name" value="<?= htmlspecialchars($nameValue) ?>">
@@ -55,13 +53,11 @@ unset($_SESSION['form_name'], $_SESSION['form_bio']);
             <?php unset($_SESSION['err_name']); ?>
         </div>
 
-        <!-- BIO -->
         <div class="mb-3">
             <label for="bio" class="form-label">Biography</label>
             <textarea name="bio" class="form-control" id="bio" rows="4"><?= htmlspecialchars($bioValue) ?></textarea>
         </div>
 
-        <!-- BUTTONS -->
         <div class="mb-3">
             <button type="submit" class="btn btn-primary">Update Author</button>
             <a href="../manage_authors.php" class="btn btn-secondary">Cancel</a>

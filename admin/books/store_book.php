@@ -2,14 +2,12 @@
 session_start();
 include('../../config/database.php');
 
-// ADMIN ONLY
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Collect form inputs
 $title        = trim($_POST['title'] ?? '');
 $author_id    = trim($_POST['author_id'] ?? '');
 $genre        = trim($_POST['genre'] ?? '');
@@ -19,7 +17,6 @@ $description  = trim($_POST['description'] ?? '');
 $condition    = trim($_POST['condition'] ?? '');
 $stock        = trim($_POST['stock'] ?? '');
 
-// Basic validation
 $errors = [];
 if ($title === '')         $errors['err_title'] = "Title is required.";
 if ($author_id === '')     $errors['err_author'] = "Author is required.";
@@ -36,7 +33,6 @@ if (empty($_FILES['image']['name'])) {
 if (!empty($errors)) {
     foreach ($errors as $k => $v) $_SESSION[$k] = $v;
 
-    // persist input values
     $_SESSION['form_title']       = $title;
     $_SESSION['form_author']      = $author_id;
     $_SESSION['form_genre']       = $genre;
@@ -50,15 +46,11 @@ if (!empty($errors)) {
     exit;
 }
 
-// ----------------------
-// UPLOAD: MAIN IMAGE
-// ----------------------
 $mainImageName = null;
 
 if (!empty($_FILES['image']['name'])) {
     $uploadDir = "../../assets/images/books/";
 
-    // Create folder if not exists
     if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
     $mainImageName = time() . "_" . basename($_FILES['image']['name']);
@@ -67,9 +59,6 @@ if (!empty($_FILES['image']['name'])) {
     move_uploaded_file($_FILES['image']['tmp_name'], $targetFile);
 }
 
-// ----------------------
-// INSERT BOOK MAIN INFO
-// ----------------------
 $stmt = $conn->prepare("INSERT INTO books 
     (title, author_id, genre, set_price, price, description, image, `condition`, stock, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
@@ -91,9 +80,6 @@ $stmt->execute();
 $book_id = $stmt->insert_id;
 $stmt->close();
 
-// ----------------------
-// UPLOAD MULTIPLE IMAGES
-// ----------------------
 if (!empty($_FILES['additional_images']['name'][0])) {
 
     $uploadDir = "../../assets/images/books/";
@@ -110,7 +96,6 @@ if (!empty($_FILES['additional_images']['name'][0])) {
             $targetFile
         );
 
-        // Save to book_images table
         $stmt = $conn->prepare("INSERT INTO book_images (book_id, image_path) VALUES (?, ?)");
         $stmt->bind_param("is", $book_id, $newName);
         $stmt->execute();

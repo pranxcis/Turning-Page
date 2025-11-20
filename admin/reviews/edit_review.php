@@ -16,7 +16,6 @@ if ($review_id <= 0) {
     exit;
 }
 
-// Fetch review + book info
 $sql = "SELECT r.id AS review_id, r.rating, r.review_text, b.id AS book_id, b.title, b.image
         FROM reviews r
         INNER JOIN books b ON r.book_id = b.id

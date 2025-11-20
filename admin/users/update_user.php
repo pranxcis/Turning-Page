@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $role = ($_POST['role'] === 'admin') ? 'admin' : 'customer';
     $password = $_POST['password'] ?? '';
 
-    // Check for duplicate email
     $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
     $stmt->bind_param("si", $email, $user_id);
     $stmt->execute();
@@ -28,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt->close();
 
-    // Update users table
     if (!empty($password)) {
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $conn->prepare("UPDATE users SET username=?, email=?, password=?, role=? WHERE id=?");
@@ -40,21 +38,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
 
-    // Handle profile picture
     $profile_picture = null;
     if (!empty($_FILES['profile_picture']['name'])) {
         $ext = pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION);
         $profile_picture = "user_$user_id.".$ext;
         move_uploaded_file($_FILES['profile_picture']['tmp_name'], "../../assets/images/users/$profile_picture");
 
-        // Update user_profiles with new picture
         $stmt = $conn->prepare("UPDATE user_profiles SET profile_picture=? WHERE user_id=?");
         $stmt->bind_param("si", $profile_picture, $user_id);
         $stmt->execute();
         $stmt->close();
     }
 
-    // Update user_profiles
     $stmt = $conn->prepare("
         UPDATE user_profiles
         SET first_name=?, last_name=?, middle_initial=?, phone=?, address=?, town=?, zipcode=?

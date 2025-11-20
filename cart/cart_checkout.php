@@ -3,7 +3,6 @@ session_start();
 include('../config/database.php');
 include('../includes/mail.php');
 
-// Redirect if user not logged in
 if (!isset($_SESSION['user']['id'])) {
     $_SESSION['message'] = "Please login to continue to checkout.";
     header("Location: ../login.php");
@@ -12,9 +11,6 @@ if (!isset($_SESSION['user']['id'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-/* ========================================================
-   FETCH USER PROFILE
-   ======================================================== */
 $stmt = $conn->prepare("
     SELECT * FROM view_user_profile
     WHERE user_id = ?
@@ -25,9 +21,6 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
-/* ========================================================
-   FETCH CART ITEMS
-   ======================================================== */
 $stmt = $conn->prepare("
     SELECT *
     FROM view_cart_items
@@ -49,9 +42,6 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-/* ========================================================
-   DEFAULTS
-   ======================================================== */
 $shipping_method = 'Standard';
 $payment_method  = 'COD';
 $voucher_code    = '';
@@ -60,14 +50,9 @@ $discount_amount = 0;
 $shipping_address = $user['address'] ?? '';
 $total = $subtotal + $shipping_fee;
 
-/* ========================================================
-   CALC TOTAL FUNCTION
-   ======================================================== */
 function calculateTotals($subtotal, $shipping_method, $voucher_code, $conn, &$shipping_fee, &$discount_amount, &$total) {
-    // Shipping fee
     $shipping_fee = ($shipping_method === 'Express') ? 150 : (($shipping_method === 'Overnight') ? 250 : 80);
 
-    // Voucher
     $discount_amount = 0;
 
     if (!empty($voucher_code)) {
@@ -94,23 +79,13 @@ function calculateTotals($subtotal, $shipping_method, $voucher_code, $conn, &$sh
     $total = $subtotal + $shipping_fee - $discount_amount;
 }
 
-/* ========================================================
-   POST ACTIONS
-   ======================================================== */
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // -----------------------------
-    // Extract POST values
-    // -----------------------------
     $shipping_method  = $_POST['shipping_method'] ?? 'Standard';
     $payment_method   = $_POST['payment_method'] ?? 'COD';
     $voucher_code     = trim($_POST['voucher_code'] ?? '');
     $shipping_address = trim($_POST['shipping_address'] ?? $user['address']);
 
-    // =====================================================
-    // UPDATE TOTALS BUTTON
-    // =====================================================
     if (isset($_POST['update_totals'])) {
         calculateTotals(
             $subtotal,
@@ -123,12 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
     }
 
-    // =====================================================
-    // PLACE ORDER BUTTON
-    // =====================================================
     if (isset($_POST['place_order'])) {
 
-        // Recalculate totals for confirmed accuracy
         calculateTotals(
             $subtotal,
             $shipping_method,
@@ -139,21 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $total
         );
 
-        // Validate cart
         if (empty($cart_items)) {
             $_SESSION['message'] = "Your cart is empty.";
             header("Location: ../shop/index.php");
             exit;
         }
 
-        // Begin transaction
         $conn->begin_transaction();
 
         try {
-
-            /* -------------------------------------------------
-               INSERT ORDER
-               ------------------------------------------------- */
             $stmt = $conn->prepare("
                 INSERT INTO orders 
                 (user_id, shipping_method, payment_method, voucher_code,
@@ -177,10 +142,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $order_id = $stmt->insert_id;
             $stmt->close();
 
-
-            /* -------------------------------------------------
-               INSERT ORDER ITEMS & UPDATE STOCK
-               ------------------------------------------------- */
             $item_stmt = $conn->prepare("
                 INSERT INTO order_items (order_id, book_id, quantity, price)
                 VALUES (?, ?, ?, ?)
@@ -194,7 +155,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             foreach ($cart_items as $item) {
 
-                // Insert item
                 $item_stmt->bind_param(
                     "iiid",
                     $order_id,
@@ -204,7 +164,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $item_stmt->execute();
 
-                // Reduce stock
                 $stock_stmt->bind_param(
                     "iii",
                     $item['quantity'],
@@ -221,30 +180,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $item_stmt->close();
             $stock_stmt->close();
 
-
-            /* -------------------------------------------------
-               CLEAR CART
-               ------------------------------------------------- */
             $clear = $conn->prepare("DELETE FROM cart_items WHERE user_id=?");
             $clear->bind_param("i", $user_id);
             $clear->execute();
             $clear->close();
 
-
-            /* -------------------------------------------------
-               COMMIT TRANSACTION
-               ------------------------------------------------- */
             $conn->commit();
-
-
-            /* =====================================================
-               SEND EMAIL (REWRITTEN & CLEAN)
-               ===================================================== */
 
             $customerEmail = $user['email'];
             $customerName  = $user['first_name'] . ' ' . $user['last_name'];
 
-            // Build HTML email
             $orderHtml = "
                 <h2 style='font-family: Arial; color:#333;'>Thank you for your order!</h2>
                 <p style='font-family: Arial; font-size: 14px;'>Your order has been successfully placed.</p>
@@ -289,21 +234,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </p>
             ";
 
-            // Actual send
             smtp_send_mail(
                 $customerEmail,
                 "Order Confirmation #$order_id",
                 $orderHtml
             );
 
-
-            /* -------------------------------------------------
-               REDIRECT SUCCESS
-               ------------------------------------------------- */
             $_SESSION['message'] = "Order placed successfully!";
-            header("Location: ../user/order_history.php");
+            header("Location: ../cart/receipt.php?order_id=$order_id");
             exit;
-
 
         } catch (Exception $e) {
 
@@ -316,11 +255,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-
 include('../includes/header.php');
 ?>
-
-<!-- =========================== HTML FRONTEND =========================== -->
 
 <div class="container my-5">
     <h1 class="text-center mb-4">Checkout</h1>
@@ -330,10 +266,8 @@ include('../includes/header.php');
 
         <div class="row">
 
-            <!-- LEFT SIDE -->
             <div class="col-lg-7 mt-3">
 
-                <!-- USER INFO -->
                 <div class="card shadow-sm p-4 mb-4">
                     <div class="d-flex">
                         <img src="../assets/images/users/<?= htmlspecialchars($user['profile_picture'] ?: 'default.png') ?>"
@@ -347,13 +281,11 @@ include('../includes/header.php');
                     </div>
                 </div>
 
-                <!-- SHIPPING ADDRESS -->
                 <div class="card shadow-sm p-4 mb-4">
                     <h4>Shipping Address</h4>
                     <textarea name="shipping_address" class="form-control" rows="3" required><?= htmlspecialchars($shipping_address) ?></textarea>
                 </div>
 
-                <!-- SHIPPING METHOD -->
                 <div class="card shadow-sm p-4 mb-4">
                     <h4>Shipping Method</h4>
                     <?php
@@ -371,7 +303,6 @@ include('../includes/header.php');
                     <?php endforeach; ?>
                 </div>
 
-                <!-- PAYMENT -->
                 <div class="card shadow-sm p-4 mb-4">
                     <h4>Payment Method</h4>
                     <?php
@@ -386,10 +317,8 @@ include('../includes/header.php');
                 </div>
             </div>
 
-            <!-- RIGHT SIDE -->
             <div class="col-lg-5 mt-3">
 
-                <!-- CART ITEMS -->
                 <div class="card shadow-sm p-4 mb-4" style="max-height:400px; overflow-y:auto;">
                     <h4>Cart Summary</h4>
                     <?php foreach($cart_items as $item): ?>
@@ -405,7 +334,6 @@ include('../includes/header.php');
                     <?php endforeach; ?>
                 </div>
 
-                <!-- ORDER SUMMARY -->
                 <div class="card shadow-sm p-4 mb-4">
                     <h4>Order Summary</h4>
 

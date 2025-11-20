@@ -16,13 +16,11 @@ if ($order_id <= 0) {
     exit;
 }
 
-// Delete order items first (foreign key safety)
 $stmt = $conn->prepare("DELETE FROM order_items WHERE order_id=?");
 $stmt->bind_param("i", $order_id);
 $stmt->execute();
 $stmt->close();
 
-// Delete order itself
 $stmt = $conn->prepare("DELETE FROM orders WHERE id=?");
 $stmt->bind_param("i", $order_id);
 $stmt->execute();

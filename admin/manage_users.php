@@ -3,14 +3,12 @@ session_start();
 $pageTitle = "Manage Users";
 include('../config/database.php');
 
-// Admin access only
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Handle role update or status toggle
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_type'])) {
     $user_id = intval($_POST['user_id'] ?? 0);
 
@@ -39,10 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_type'])) {
     exit;
 }
 
-// Filter buttons
 $filter = $_GET['filter'] ?? 'all';
 
-// Build query
 $where = "";
 $params = [];
 $types = "";
@@ -61,7 +57,6 @@ if ($filter === 'admin') {
     $where = "WHERE u.status = 0";
 }
 
-// Fetch users
 $sql = "SELECT u.id, u.username, u.email, u.role, u.status, u.created_at,
                p.first_name, p.last_name, p.middle_initial, p.phone, p.address, p.town, p.zipcode, p.profile_picture
         FROM users u
@@ -85,16 +80,15 @@ include('../includes/header.php');
     <?php include('../includes/admin_sidebar.php'); ?>
 
     <div class="container my-5">
-        <!-- Title and Filters -->
+
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1><?= $pageTitle ?></h1>
             <div class="d-flex align-items-center flex-wrap">
-                <!-- Add User Button -->
+
                 <a href="add_user.php" class="btn btn-primary me-3 mb-2">
                     <i class="fas fa-plus me-1"></i> Add User
                 </a>
 
-                <!-- Filter Buttons -->
                 <?php
                 $filters = ['all' => 'All', 'admin' => 'Admin', 'customer' => 'Customer', 'active' => 'Active', 'deactivated' => 'Deactivated'];
                 foreach ($filters as $key => $label):
@@ -113,20 +107,17 @@ include('../includes/header.php');
             <?php unset($_SESSION['message']); ?>
         <?php endif; ?>
 
-        <!-- User Cards -->
         <div class="row g-3">
             <?php if (!empty($users)): ?>
                 <?php foreach ($users as $user): ?>
                     <div class="col-12">
                         <div class="card shadow-sm p-4">
                             <div class="d-flex align-items-center mb-1">
-                                <!-- Profile Image -->
                                 <div class="text-center me-5 ms-3" style="width:250px; flex-shrink:0; padding:10px;">
                                     <img src="../assets/images/users/<?= $user['profile_picture'] ?: 'default.png' ?>" 
                                          class="rounded border" width="220" height="220" alt="Profile">
                                 </div>
 
-                                <!-- Name, Role, Address, Contact, Status/Joined -->
                                 <div class="flex-grow-1 d-flex flex-column justify-content-between" style="min-height:180px;">
                                     <div>
                                         <h5 class="mb-1 fw-bold" style="font-size:1.35rem;">
@@ -134,7 +125,6 @@ include('../includes/header.php');
                                             <small class="text-muted" style="font-size:0.95rem;">(<?= htmlspecialchars($user['username']) ?>)</small>
                                         </h5>
 
-                                        <!-- Role Dropdown -->
                                         <form method="POST" class="d-inline">
                                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                                             <input type="hidden" name="action_type" value="update_role">
@@ -144,18 +134,15 @@ include('../includes/header.php');
                                             </select>
                                         </form>
 
-                                        <!-- Address -->
                                         <p class="mb-1 mt-4" style="font-size:0.95rem;">
                                             <?= htmlspecialchars($user['address'] ?? '-') ?>, <?= htmlspecialchars($user['town'] ?? '-') ?>, <?= htmlspecialchars($user['zipcode'] ?? '-') ?>
                                         </p>
 
-                                        <!-- Email | Phone -->
                                         <p class="mb-1" style="font-size:0.95rem;">
                                             <?= htmlspecialchars($user['email']) ?> | <?= htmlspecialchars($user['phone'] ?? '-') ?>
                                         </p>
                                     </div>
 
-                                    <!-- Status | Joined -->
                                     <div class="d-flex justify-content-start gap-3 mt-2 align-items-center">
                                         <span class="fw-bold" style="font-size:0.95rem;">Status:</span>
                                         <span class="badge <?= $user['status'] ? 'bg-success' : 'bg-danger' ?>" style="font-size:0.85rem;">
@@ -166,7 +153,6 @@ include('../includes/header.php');
                                     </div>
                                 </div>
 
-                                <!-- Action Icons -->
                                 <div class="d-flex flex-row align-items-center pe-3 ms-4" style="gap:10px; min-width:50px;">
                                     <a href="users/edit_user.php?id=<?= $user['id'] ?>" class="text-decoration-none text-dark pe-4" title="Edit">
                                         <i class="fas fa-edit fa-lg"></i>
@@ -193,7 +179,6 @@ include('../includes/header.php');
             <?php endif; ?>
         </div>
 
-        <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     </div>
 </div>

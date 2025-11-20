@@ -1,22 +1,18 @@
 <?php
-// Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Include header and database
 include("../includes/header.php");
 include("../config/database.php");
 
-// Check if user is logged in and is admin
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    header("Location: login.php"); // Redirect to login if not admin
+    header("Location: login.php");
     exit();
 }
 
 $pageTitle = "Admin Dashboard";
 
-// Fetch quick stats for dashboard
 $stats = [];
 $query = "SELECT 
     (SELECT COUNT(*) FROM users) AS total_users,
@@ -33,13 +29,10 @@ if ($result) {
 <div class="d-flex">
     <?php include('../includes/admin_sidebar.php'); ?>
 
-    <!-- MAIN CONTENT -->
     <div class="container mt-5 mb-5">
-        <!-- Admin Dashboard Title -->
         <h1 class="mb-2">Admin Dashboard</h1>
-        <!-- Welcome message directly under title -->
         <p class="mb-4">Welcome, <?php echo htmlspecialchars($_SESSION['user']['name'] ?? 'Admin'); ?>! Manage your site's content below.</p>
-        <!-- QUICK STATS -->
+
         <div class="row mb-4">
             <div class="col-12">
                 <h3 class="mb-3">Quick Stats</h3>
@@ -77,7 +70,7 @@ if ($result) {
                 </div>
             </div>
         </div>
-        <!-- MANAGEMENT CARDS -->
+
         <div class="row">
             <div class="col-md-6 mb-3">
                 <div class="card">
@@ -134,8 +127,8 @@ if ($result) {
                 </div>
             </div>
         </div>
-    </div> <!-- container -->
-</div> <!-- d-flex -->
+    </div> 
+</div>
 
 
 <?php include("../includes/footer.php"); ?>

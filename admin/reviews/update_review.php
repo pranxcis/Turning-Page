@@ -2,18 +2,12 @@
 session_start();
 include('../../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../../login.php");
     exit;
 }
 
-// ------------------------
-// VALIDATION
-// ------------------------
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_POST['review_id'])) {
     $_SESSION['message'] = "Invalid request.";
     header("Location: manage_reviews.php");
@@ -24,9 +18,6 @@ $review_id   = intval($_POST['review_id']);
 $rating      = intval($_POST['rating']);
 $review_text = trim($_POST['review_text']);
 
-// ------------------------
-// BAD WORD FILTER
-// ------------------------
 $bad_words = ['Tangina','Putangina','Bobo','Tanga','Gago','Puta','Fuck','Fucker','Motherfucker'];
 $pattern = '/\b(' . implode('|', $bad_words) . ')\b/i';
 
@@ -36,9 +27,6 @@ if ($rating < 1 || $rating > 5 || empty($review_text) || preg_match($pattern, $r
     exit;
 }
 
-// ------------------------
-// VERIFY REVIEW EXISTS
-// ------------------------
 $stmt = $conn->prepare("SELECT id FROM reviews WHERE id = ?");
 $stmt->bind_param("i", $review_id);
 $stmt->execute();
@@ -52,9 +40,6 @@ if ($result->num_rows === 0) {
 }
 $stmt->close();
 
-// ------------------------
-// UPDATE REVIEW ONLY
-// ------------------------
 $stmt = $conn->prepare("UPDATE reviews SET rating = ?, review_text = ? WHERE id = ?");
 $stmt->bind_param("isi", $rating, $review_text, $review_id);
 

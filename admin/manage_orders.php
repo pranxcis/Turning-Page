@@ -3,23 +3,14 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// ------------------------
-// SEARCH (by order id, user email, or status)
-// ------------------------
 $keyword = strtolower(trim($_GET['search'] ?? ''));
 
-// ------------------------
-// FETCH ORDERS WITH ITEM COUNT & TOTALS
-// ------------------------
 $keyword_sql = '';
 if ($keyword) {
     $keyword_sql = "WHERE LOWER(o.status) LIKE ? OR LOWER(u.email) LIKE ? OR o.id LIKE ?";
@@ -39,7 +30,6 @@ $sql = "
     ORDER BY o.created_at DESC
 ";
 
-// Use prepared statements to avoid SQL injection
 $stmt = $conn->prepare($sql);
 if ($keyword) {
     $like_keyword = "%$keyword%";
@@ -59,7 +49,6 @@ $orderCount = $result->num_rows;
             <h2>Orders Management (<?= $orderCount ?>)</h2>
         </div>
 
-        <!-- SEARCH -->
         <form class="mb-4" method="GET" action="">
             <div class="input-group">
                 <input 
@@ -81,7 +70,6 @@ $orderCount = $result->num_rows;
                     <div class="col-12">
                         <div class="card p-3 shadow-sm d-flex flex-row justify-content-between align-items-center">
 
-                            <!-- ORDER DETAILS -->
                             <div class="flex-grow-1">
                                 <h5 class="mb-2">Order #<?= $order['id'] ?></h5>
 
@@ -97,9 +85,8 @@ $orderCount = $result->num_rows;
                                 <p class="mb-1">
                                     <strong>Status:</strong>
                                     <?php
-                                        $status = $order['status']; // e.g., "Pending"
+                                        $status = $order['status']; 
 
-                                        // Badge colors based on ENUM
                                         switch($status) {
                                             case 'Pending':
                                                 $badgeClass = 'bg-warning text-dark';
@@ -127,7 +114,6 @@ $orderCount = $result->num_rows;
                                 <p class="mb-1"><strong>Date:</strong> <?= date("F d, Y h:i A", strtotime($order['created_at'])) ?></p>
                             </div>
 
-                            <!-- ACTIONS -->
                             <div class="d-flex flex-column ms-3">
                                 <a href="orders/view_order.php?id=<?= $order['id'] ?>" 
                                    class="btn btn-outline-primary btn-sm mb-2">

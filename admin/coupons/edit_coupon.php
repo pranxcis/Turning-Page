@@ -3,7 +3,6 @@ session_start();
 include('../../includes/header.php');
 include('../../config/database.php');
 
-// Admin check
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
@@ -17,7 +16,6 @@ if($id <= 0){
     exit;
 }
 
-// Fetch coupon
 $stmt = $conn->prepare("SELECT * FROM coupons WHERE id=?");
 $stmt->bind_param("i",$id);
 $stmt->execute();

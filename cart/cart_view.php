@@ -4,7 +4,6 @@ $pageTitle = "My Book Cart";
 include('../includes/header.php');
 include('../config/database.php');
 
-// Must be logged in
 if (!isset($_SESSION['user']['id'])) {
     $_SESSION['message'] = "Please login to view your cart.";
     header("Location: ../user/login.php");
@@ -13,7 +12,6 @@ if (!isset($_SESSION['user']['id'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-// Fetch cart items from database
 $stmt = $conn->prepare("
     SELECT c.book_id, c.quantity, b.title, b.description, b.price, b.stock, b.image
     FROM cart_items c
@@ -43,7 +41,6 @@ $stmt->close();
     <?php if (!empty($cart_items)): ?>
         <form method="POST" action="../cart/cart_update.php">
             <div class="row">
-                <!-- LEFT SIDE: Cart items -->
                 <div class="col-lg-8">
                     <?php foreach ($cart_items as $cart_itm): ?>
                         <?php
@@ -85,7 +82,6 @@ $stmt->close();
                     <?php endforeach; ?>
                 </div>
 
-                <!-- RIGHT SIDE: Summary -->
                 <div class="col-lg-4">
                     <div class="card p-3">
                         <h4>Order Summary</h4>

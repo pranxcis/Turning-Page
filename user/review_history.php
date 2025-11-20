@@ -3,9 +3,6 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// ------------------------
-// USER MUST BE LOGGED IN
-// ------------------------
 if (!isset($_SESSION['user'])) {
     $_SESSION['message'] = "Please login to view your review history.";
     header("Location: ../login.php");
@@ -14,9 +11,6 @@ if (!isset($_SESSION['user'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-// ------------------------
-// FETCH USER REVIEWS
-// ------------------------
 $sql = "
     SELECT r.id AS review_id, r.rating, r.review_text, r.created_at,
            b.id AS book_id, b.title, b.image
@@ -41,7 +35,6 @@ $reviewCount = $result->num_rows;
                 <div class="col-12">
                     <div class="card p-3 shadow-sm d-flex flex-row align-items-start gap-3">
 
-                        <!-- Book Image -->
                         <div class="flex-shrink-0">
                             <?php if ($review['image']): ?>
                                 <img src="../assets/images/books/<?= htmlspecialchars($review['image']) ?>" 
@@ -53,7 +46,6 @@ $reviewCount = $result->num_rows;
                             <?php endif; ?>
                         </div>
 
-                        <!-- Review Details -->
                         <div class="flex-grow-1">
                             <h5 class="mb-1"><?= htmlspecialchars($review['title']) ?></h5>
 
@@ -66,7 +58,6 @@ $reviewCount = $result->num_rows;
                             <p class="mb-0 text-muted"><small>Reviewed on <?= date("F d, Y h:i A", strtotime($review['created_at'])) ?></small></p>
                         </div>
 
-                        <!-- Actions -->
                         <div class="flex-shrink-0 d-flex flex-column gap-2">
                             <a href="add_review.php?book_id=<?= $review['book_id'] ?>" class="btn btn-sm btn-outline-success">
                                 Add Another Review

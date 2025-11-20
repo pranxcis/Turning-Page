@@ -3,14 +3,12 @@ session_start();
 include('../../includes/header.php');
 include('../../config/database.php');
 
-// Admin check
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Load old input values
 $code = $_SESSION['form_code'] ?? '';
 $type = $_SESSION['form_type'] ?? '';
 $amount = $_SESSION['form_amount'] ?? '';

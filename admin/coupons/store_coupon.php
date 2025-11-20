@@ -2,28 +2,24 @@
 session_start();
 include('../../config/database.php');
 
-// Admin check
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Collect POST data
 $code = trim($_POST['code'] ?? '');
 $type = $_POST['type'] ?? '';
 $amount = $_POST['amount'] ?? '';
 $min_order = $_POST['min_order'] ?? '';
 $expires_at = $_POST['expires_at'] ?? '';
 
-// Store old values in case of error
 $_SESSION['form_code'] = $code;
 $_SESSION['form_type'] = $type;
 $_SESSION['form_amount'] = $amount;
 $_SESSION['form_min_order'] = $min_order;
 $_SESSION['form_expires_at'] = $expires_at;
 
-// Basic validation
 $errors = [];
 if (!$code) $errors[] = "Code is required";
 if (!$type) $errors[] = "Type is required";
@@ -37,12 +33,10 @@ if ($errors) {
     exit;
 }
 
-// Insert into database
 $stmt = $conn->prepare("INSERT INTO coupons (code, type, amount, min_order, expires_at) VALUES (?, ?, ?, ?, ?)");
 $stmt->bind_param("ssdds", $code, $type, $amount, $min_order, $expires_at);
 
 if ($stmt->execute()) {
-    // Clear old values
     unset($_SESSION['form_code'], $_SESSION['form_type'], $_SESSION['form_amount'], $_SESSION['form_min_order'], $_SESSION['form_expires_at']);
     $_SESSION['message'] = "Coupon added successfully!";
     header("Location: ../manage_coupons.php");

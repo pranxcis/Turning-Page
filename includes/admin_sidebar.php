@@ -3,23 +3,19 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Ensure only admins can access
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header("Location: ../login.php");
     exit;
 }
 ?>
 
-<!-- Admin Sidebar -->
 <div class="d-flex flex-column flex-shrink-0 p-3 bg-light shadow-sm" style="width: 300px; min-height: 100vh;">
 
-    <!-- Logo / Title -->
     <a href="dashboard.php" class="d-flex align-items-center mb-4 text-dark text-decoration-none">
         <i class="fas fa-cogs fs-3 me-2 ms-4 pt-4"></i>
         <span class="fs-4 fw-bold pt-4 ms-2">ADMIN PANEL</span>
     </a>
 
-            <!-- Navigation -->
             <ul class="nav nav-pills flex-column ms-4 mb-auto pt-2">
                 <li class="nav-item mb-2">
                     <a href="dashboard.php" class="nav-link link-dark d-flex align-items-center rounded py-2 px-3 hover-shadow">
@@ -61,7 +57,6 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     <hr class="my-3">
 </div>
 
-<!-- Additional CSS for hover effect -->
 <style>
 .hover-shadow:hover {
     background-color: #f8f9fa;

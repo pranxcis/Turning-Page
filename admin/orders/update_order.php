@@ -1,20 +1,15 @@
 <?php
 session_start();
 include('../../config/database.php');
-include('../../includes/mail.php'); // SMTP mail function
+include('../../includes/mail.php'); 
 
-// ------------------------------------------------------
-// ADMIN ACCESS ONLY
-// ------------------------------------------------------
+
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// ------------------------------------------------------
-// VALIDATE INPUT
-// ------------------------------------------------------
 $order_id = intval($_POST['order_id'] ?? 0);
 $new_status = $_POST['status'] ?? '';
 
@@ -26,9 +21,6 @@ if ($order_id <= 0 || !in_array($new_status, $allowedStatuses)) {
     exit;
 }
 
-// ------------------------------------------------------
-// FETCH ORDER + USER INFORMATION
-// ------------------------------------------------------
 $stmt = $conn->prepare("
     SELECT o.*, u.email, u.username, up.first_name, up.last_name
     FROM orders o
@@ -47,16 +39,11 @@ if (!$order) {
     exit;
 }
 
-$old_status = $order['status']; // IMPORTANT to compare old vs new
+$old_status = $order['status']; 
 
-// ------------------------------------------------------
-// RESTORE STOCK IF ORDER GETS CANCELLED
-// ------------------------------------------------------
-// Only restore stocks when status changes FROM (Pending/Processing/Paid) TO Cancelled.
-// If order was already Cancelled or Delivered, do NOT restore.
+
 if ($new_status === 'Cancelled' && in_array($old_status, ['Pending','Processing','Paid', 'Delivered'])) {
 
-    // Fetch all items in this order
     $itemStmt = $conn->prepare("
         SELECT book_id, quantity 
         FROM order_items 
@@ -67,7 +54,6 @@ if ($new_status === 'Cancelled' && in_array($old_status, ['Pending','Processing'
     $items = $itemStmt->get_result();
     $itemStmt->close();
 
-    // Restore each book's stock
     while ($item = $items->fetch_assoc()) {
         $updateStock = $conn->prepare("
             UPDATE books SET stock = stock + ? WHERE id = ?
@@ -78,18 +64,12 @@ if ($new_status === 'Cancelled' && in_array($old_status, ['Pending','Processing'
     }
 }
 
-// ------------------------------------------------------
-// UPDATE ORDER STATUS
-// ------------------------------------------------------
 $stmt = $conn->prepare("UPDATE orders SET status=? WHERE id=?");
 $stmt->bind_param("si", $new_status, $order_id);
 
 if ($stmt->execute()) {
     $_SESSION['message'] = "Order #$order_id updated to '$new_status'.";
 
-    // ------------------------------------------------------
-    // SEND EMAIL NOTIFICATION
-    // ------------------------------------------------------
     $customerEmail = $order['email'];
     $customerName  = trim($order['first_name'] . ' ' . $order['last_name']);
     if (!$customerName) {

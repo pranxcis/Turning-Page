@@ -2,7 +2,7 @@
 include("../includes/header.php"); ?>
 <div class="container">
     <div class="row align-items-center" style="min-height: 80vh;">
-        <!-- Left Column: Title and Description -->
+
         <div class="col-md-6 px-5" style="color: #222;">
             <h1 class="display-4 fw-bold">Welcome</h1>
             <p class="lead" style="color: #444;">
@@ -18,7 +18,7 @@ include("../includes/header.php"); ?>
                 <a href="#" style="color: #222;" class="fs-4"><i class="fab fa-youtube"></i></a>
             </div>
         </div>
-        <!-- Right Column: Register Form -->
+
         <div class="col-md-6 px-5" style="color: #222;">
             <?php include("../includes/alert.php"); ?>
             <h2 class="mb-4">Register Now</h2>

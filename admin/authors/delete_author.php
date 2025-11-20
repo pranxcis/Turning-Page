@@ -2,16 +2,12 @@
 session_start();
 include('../../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Get author ID
 $authorId = intval($_GET['id'] ?? 0);
 
 if ($authorId <= 0) {
@@ -20,7 +16,6 @@ if ($authorId <= 0) {
     exit;
 }
 
-// Check if author has books
 $stmt = $conn->prepare("SELECT COUNT(*) FROM books WHERE author_id = ?");
 $stmt->bind_param("i", $authorId);
 $stmt->execute();
@@ -34,7 +29,6 @@ if ($bookCount > 0) {
     exit;
 }
 
-// Delete author
 $stmt = $conn->prepare("DELETE FROM authors WHERE id = ?");
 $stmt->bind_param("i", $authorId);
 

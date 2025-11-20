@@ -3,7 +3,6 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// Validate book ID
 $book_id = isset($_GET['book_id']) ? intval($_GET['book_id']) : 0;
 if ($book_id <= 0) {
     echo "<div class='container my-4'><p>Invalid book selected.</p></div>";
@@ -11,7 +10,6 @@ if ($book_id <= 0) {
     exit;
 }
 
-// Fetch book info
 $stmt = $conn->prepare("
     SELECT b.id AS book_id, b.title, b.price, b.stock, b.description,
            b.genre, b.condition, b.author_id, b.image AS main_image,
@@ -31,7 +29,6 @@ if (!$book) {
     exit;
 }
 
-// Fetch ALL images
 $images = [];
 $img_stmt = $conn->prepare("SELECT image_path FROM book_images WHERE book_id = ?");
 $img_stmt->bind_param("i", $book_id);
@@ -47,18 +44,15 @@ $img_stmt->close();
 
 $IMG_FOLDER = "../assets/images/books/";
 
-// Combine images
 $all_images = [];
 $main_image = $book['main_image'] ?: "default.jpg";
 $main_image_path = $IMG_FOLDER . $main_image;
 
-// Fallback if missing
 if (!file_exists($main_image_path)) {
     $main_image_path = $IMG_FOLDER . "default.jpg";
 }
 $all_images[] = $main_image_path;
 
-// Add ALL book_images files
 foreach ($images as $img) {
     $img_path = $IMG_FOLDER . basename($img);
     if (file_exists($img_path) && !in_array($img_path, $all_images)) {
@@ -66,10 +60,8 @@ foreach ($images as $img) {
     }
 }
 
-// Limit thumbnails to up to 4 (including main)
 $thumbnail_images = array_slice($all_images, 0, 4);
 
-// Fetch other books by the same author (exclude current book)
 $other_books_stmt = $conn->prepare("
     SELECT id, title, price, image
     FROM books
@@ -81,7 +73,6 @@ $other_books_stmt->execute();
 $other_books = $other_books_stmt->get_result();
 $other_books_stmt->close();
 
-// Fetch customer reviews
 $review_stmt = $conn->prepare("
     SELECT r.rating, r.review_text, r.created_at, u.username
     FROM reviews r
@@ -111,7 +102,7 @@ $review_stmt->close();
 
 <div class="image-gallery-flex d-flex gap-4 pb-5">
 
-    <!-- Thumbnails -->
+
     <div class="thumbnail-column d-flex flex-column gap-2">
         <?php foreach ($thumbnail_images as $index => $img_path): ?>
             <img src="<?= htmlspecialchars($img_path); ?>"
@@ -121,7 +112,7 @@ $review_stmt->close();
         <?php endforeach; ?>
     </div>
 
-    <!-- Main Image -->
+
     <div style="position:relative;">
         <img id="mainImage" src="<?= htmlspecialchars($thumbnail_images[0] ?? '../assets/images/books/default.jpg'); ?>" 
              onerror="this.src='../assets/images/books/default.jpg';">
@@ -130,7 +121,7 @@ $review_stmt->close();
         <?php endif; ?>
     </div>
 
-    <!-- Book Info -->
+
     <div class="flex-grow-1 d-flex flex-column ms-5">
 
         <h1 class="fw-bold"><?= htmlspecialchars(strtoupper($book['title'])); ?></h1>
@@ -150,7 +141,6 @@ $review_stmt->close();
             <?= nl2br(htmlspecialchars($book['description'])); ?>
         </div>
 
-        <!-- Add to cart -->
         <form method="POST" action="../cart/cart_update.php" class="mt-auto d-flex flex-column gap-2">
             <input type="hidden" name="item_id" value="<?= $book['book_id']; ?>">
             <input type="hidden" name="type" value="add">
@@ -179,9 +169,6 @@ $review_stmt->close();
 
 </div>
 
-<!-- ========================= -->
-<!-- Other books by this author -->
-<!-- ========================= -->
 <?php if ($other_books->num_rows > 0): ?>
     <div class="mt-5">
         <h5 class="fw-bold mb-3">Other books by <?= htmlspecialchars($book['author']); ?></h5>
@@ -207,9 +194,6 @@ $review_stmt->close();
     </div>
 <?php endif; ?>
 
-<!-- ========================= -->
-<!-- CUSTOMER REVIEWS SECTION -->
-<!-- ========================= -->
 <div class="mt-5">
     <h4 class="fw-bold mb-3">Customer Reviews</h4>
 

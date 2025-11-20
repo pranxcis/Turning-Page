@@ -1,6 +1,6 @@
 <?php
 session_start();
-include("../config/database.php"); // include DB first
+include("../config/database.php"); 
     
 if (isset($_POST['submit'])) {
     $email = trim($_POST['email']);
@@ -19,20 +19,19 @@ if (isset($_POST['submit'])) {
             'name' => $username,
             'role' => $role
         ];
-        header("Location: ../home.php"); // redirect before output
+        header("Location: ../home.php"); 
         exit();
     } else {
         $_SESSION['message'] = 'Wrong email or password';
     }
 }
 
-// Only include header after redirect logic
 include("../includes/header.php");
 ?>
 
     <div class="container">
         <div class="row align-items-center" style="min-height: 80vh;">
-            <!-- Left Column: Title and Description -->
+
             <div class="col-md-6 px-5" style="color: #222;">
                 <h1 class="display-4 fw-bold">Welcome to<br>Turning Page</h1>
                 <p class="lead" style="color: #444;">
@@ -42,7 +41,6 @@ include("../includes/header.php");
                     I would have known what I've been living for all along"
                 </p>
                 <div class="d-flex gap-3 mt-4">
-                    <!-- Darker social icons with black tone -->
                     <a href="#" style="color: #222;" class="fs-4"><i class="fab fa-facebook-f"></i></a>
                     <a href="#" style="color: #222;" class="fs-4"><i class="fab fa-twitter"></i></a>
                     <a href="#" style="color: #222;" class="fs-4"><i class="fab fa-instagram"></i></a>
@@ -50,7 +48,6 @@ include("../includes/header.php");
                 </div>
             </div>
 
-            <!-- Right Column: Sign In Form -->
             <div class="col-md-6 px-5" style="color: #222;">
                 <?php include("../includes/alert.php"); ?>
                 <h2 class="mb-4">Sign In Now</h2>
@@ -66,7 +63,6 @@ include("../includes/header.php");
                         <input type="password" id="password" name="password" class="form-control" required autocomplete="current-password" />
                     </div>
 
-                    <!-- Black button -->
                     <button type="submit" name="submit" class="btn" style="background-color: #000; color: #fff; width: 100%; font-weight: 700; margin-bottom: 1rem;">
                         Sign in
                     </button>

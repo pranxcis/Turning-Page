@@ -3,14 +3,12 @@ session_start();
 $pageTitle = "Edit User";
 include('../../config/database.php');
 
-// Admin access only
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Get user ID from URL
 $user_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($user_id <= 0) {
     $_SESSION['message'] = "Invalid user ID.";
@@ -18,7 +16,6 @@ if ($user_id <= 0) {
     exit;
 }
 
-// Fetch user info
 $stmt = $conn->prepare("
     SELECT u.id, u.username, u.email, u.role, u.status,
            p.first_name, p.last_name, p.middle_initial, p.phone, p.address, p.town, p.zipcode, p.profile_picture

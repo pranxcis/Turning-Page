@@ -13,24 +13,15 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     exit;
 }
 
-// ------------------------
-// FETCH USERS
-// ------------------------
 $sql_users = "SELECT u.id, u.username, p.first_name, p.last_name
               FROM users u
               LEFT JOIN user_profiles p ON u.id = p.user_id
               ORDER BY u.username ASC";
 $result_users = $conn->query($sql_users);
 
-// ------------------------
-// FETCH BOOKS
-// ------------------------
 $sql_books = "SELECT id, title FROM books ORDER BY title ASC";
 $result_books = $conn->query($sql_books);
 
-// ------------------------
-// HANDLE FORM SUBMISSION
-// ------------------------
 $message = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = intval($_POST['user_id']);
@@ -71,7 +62,7 @@ include('../../includes/header.php');
     <?php endif; ?>
 
     <form method="POST" action="">
-        <!-- Select User -->
+
         <div class="mb-3">
             <label for="user_id" class="form-label">User</label>
             <select name="user_id" id="user_id" class="form-select" required>
@@ -84,7 +75,6 @@ include('../../includes/header.php');
             </select>
         </div>
 
-        <!-- Select Book -->
         <div class="mb-3">
             <label for="book_id" class="form-label">Book</label>
             <select name="book_id" id="book_id" class="form-select" required>
@@ -95,7 +85,6 @@ include('../../includes/header.php');
             </select>
         </div>
 
-        <!-- Rating -->
         <div class="mb-3">
             <label for="rating" class="form-label">Rating (1-5)</label>
             <select name="rating" id="rating" class="form-select" required>
@@ -106,7 +95,6 @@ include('../../includes/header.php');
             </select>
         </div>
 
-        <!-- Review Text -->
         <div class="mb-3">
             <label for="review_text" class="form-label">Review</label>
             <textarea name="review_text" id="review_text" rows="5" class="form-control" required></textarea>

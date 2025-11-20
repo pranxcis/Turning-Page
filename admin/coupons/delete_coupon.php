@@ -2,7 +2,6 @@
 session_start();
 include('../../config/database.php');
 
-// Admin check
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");

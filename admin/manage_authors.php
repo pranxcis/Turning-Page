@@ -3,24 +3,19 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// SEARCH & FILTER
 $keyword = '';
 if(isset($_GET['search'])) {
     $keyword = strtolower(trim($_GET['search']));
 }
 
-$filter = $_GET['filter'] ?? 'all'; // all, with_books, no_books
+$filter = $_GET['filter'] ?? 'all';
 
-// FETCH AUTHORS WITH BOOKS
 $sql = "SELECT a.id, a.name, a.bio, b.title AS book_title
         FROM authors a
         LEFT JOIN books b ON b.author_id = a.id
@@ -30,7 +25,6 @@ if($keyword) {
     $sql .= " AND LOWER(a.name) LIKE '%{$keyword}%' ";
 }
 
-// Apply filter buttons
 if($filter === 'with_books') {
     $sql .= " AND b.id IS NOT NULL ";
 } elseif($filter === 'no_books') {
@@ -41,7 +35,6 @@ $sql .= " ORDER BY a.name, b.title ";
 
 $result = mysqli_query($conn, $sql);
 
-// Organize books by author
 $authors = [];
 while ($row = mysqli_fetch_assoc($result)) {
     $authorId = $row['id'];
@@ -72,16 +65,13 @@ $authorCount = count($authors);
         </a>
     </div>
 
-    <!-- Filters + Search (same line) -->
     <div class="d-flex mb-4 align-items-center">
-        <!-- Filter Buttons -->
         <div class="me-3">
             <a href="?filter=all&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter ?? 'all') === 'all' ? 'btn-primary' : 'btn-outline-primary' ?> me-2">All</a>
             <a href="?filter=with_books&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter ?? '') === 'with_books' ? 'btn-primary' : 'btn-outline-primary' ?> me-2">With Books</a>
             <a href="?filter=no_books&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter ?? '') === 'no_books' ? 'btn-primary' : 'btn-outline-primary' ?>">No Books</a>
         </div>
 
-        <!-- Search Form -->
         <form class="flex-grow-1" method="GET" action="">
             <div class="input-group">
                 <input type="text" name="search" class="form-control" placeholder="Search by author name..." value="<?= htmlspecialchars($keyword) ?>">
@@ -96,7 +86,6 @@ $authorCount = count($authors);
                 <div class="col-12">
                     <div class="card shadow-sm p-4 border-1">
                         <div class="d-flex justify-content-between align-items-center">
-                            <!-- AUTHOR DETAILS -->
                             <div class="flex-grow-1">
                                 <h5 class="mb-2"><?= htmlspecialchars($author['name']) ?> <small class="text-muted">(ID: <?= $author['id'] ?>)</small></h5>
                                 <?php if($author['bio']): ?>
@@ -109,7 +98,6 @@ $authorCount = count($authors);
                                 <?php endif; ?>
                             </div>
 
-                            <!-- ACTIONS -->
                             <div class="d-flex flex-column ms-3">
                                 <a href="authors/edit_author.php?id=<?= $author['id'] ?>" class="btn btn-outline-primary btn-sm mb-2">
                                     <i class="fa-regular fa-pen-to-square"></i> Edit

@@ -2,16 +2,12 @@
 session_start();
 include('../../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Get book ID from hidden input
 $bookId = intval($_POST['book_id'] ?? 0);
 if ($bookId <= 0) {
     $_SESSION['message'] = "Invalid book ID.";
@@ -19,21 +15,15 @@ if ($bookId <= 0) {
     exit;
 }
 
-// ------------------------
-// COLLECT INPUTS
-// ------------------------
 $title       = trim($_POST['title'] ?? '');
 $authorId    = intval($_POST['author_id'] ?? 0);
-$genre       = trim($_POST['genre'] ?? ''); // single select in edit_book.php
+$genre       = trim($_POST['genre'] ?? ''); 
 $setPrice    = floatval($_POST['set_price'] ?? 0);
 $price       = floatval($_POST['price'] ?? 0);
 $condition   = trim($_POST['condition'] ?? '');
 $stock       = intval($_POST['stock'] ?? 0);
 $description = trim($_POST['description'] ?? '');
 
-// ------------------------
-// VALIDATION
-// ------------------------
 $errors = [];
 if ($title === '')      $errors['err_title'] = "Title is required.";
 if ($authorId <= 0)     $errors['err_author'] = "Author is required.";
@@ -59,9 +49,6 @@ if (!empty($errors)) {
     exit;
 }
 
-// ------------------------
-// HANDLE MAIN IMAGE UPLOAD
-// ------------------------
 $image_sql = '';
 if (isset($_FILES['image']) && $_FILES['image']['error'] != UPLOAD_ERR_NO_FILE) {
     $allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
@@ -84,9 +71,6 @@ if (isset($_FILES['image']) && $_FILES['image']['error'] != UPLOAD_ERR_NO_FILE) 
     }
 }
 
-// ------------------------
-// UPDATE BOOK
-// ------------------------
 $sql = "UPDATE books SET
         title='" . mysqli_real_escape_string($conn, $title) . "',
         author_id=$authorId,
@@ -105,9 +89,6 @@ if (!mysqli_query($conn, $sql)) {
     exit;
 }
 
-// ------------------------
-// HANDLE ADDITIONAL IMAGES
-// ------------------------
 if (!empty($_FILES['additional_images']['name'][0])) {
     $target_dir = "../../assets/images/books/";
     foreach ($_FILES['additional_images']['tmp_name'] as $index => $tmpName) {

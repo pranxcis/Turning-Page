@@ -2,9 +2,6 @@
 session_start();
 include('../config/database.php');
 
-// ------------------------
-// USER MUST BE LOGGED IN
-// ------------------------
 if (!isset($_SESSION['user'])) {
     $_SESSION['message'] = "Please login to add a review.";
     header("Location: ../login.php");
@@ -22,9 +19,6 @@ if ($book_id <= 0 || $rating < 1 || $rating > 5 || empty($review_text)) {
     exit;
 }
 
-// ------------------------
-// Offensive words list
-// ------------------------
 $bad_words = [
     'Tangina',
     'Putangina',
@@ -37,19 +31,10 @@ $bad_words = [
     'Motherfucker'
 ];
 
-// ------------------------
-// Create regex pattern
-// ------------------------
 $pattern = '/' . implode('|', array_map('preg_quote', $bad_words)) . '/i';
 
-// ------------------------
-// Replace bad words with [censored]
-// ------------------------
 $review_text_filtered = preg_replace($pattern, '****', $review_text);
 
-// ------------------------
-// Insert review into database
-// ------------------------
 $sql_insert = "INSERT INTO reviews (user_id, book_id, rating, review_text, created_at) VALUES (?, ?, ?, ?, NOW())";
 $stmt_insert = $conn->prepare($sql_insert);
 $stmt_insert->bind_param("iiis", $user_id, $book_id, $rating, $review_text_filtered);

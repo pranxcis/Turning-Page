@@ -3,20 +3,15 @@ session_start();
 include('../../includes/header.php');
 include('../../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Load previous input values
 $nameValue = $_SESSION['form_name'] ?? '';
 $bioValue  = $_SESSION['form_bio'] ?? '';
 
-// Clear session previous inputs
 unset($_SESSION['form_name'], $_SESSION['form_bio']);
 ?>
 
@@ -26,7 +21,6 @@ unset($_SESSION['form_name'], $_SESSION['form_bio']);
     <form method="POST" action="store_author.php">
         <div class="row g-3">
 
-            <!-- NAME -->
             <div class="col-12">
                 <label>Author Name</label>
                 <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($nameValue) ?>" />
@@ -34,7 +28,6 @@ unset($_SESSION['form_name'], $_SESSION['form_bio']);
                 <?php unset($_SESSION['err_name']); ?>
             </div>
 
-            <!-- BIO -->
             <div class="col-12">
                 <label>Biography</label>
                 <textarea name="bio" class="form-control" rows="4"><?= htmlspecialchars($bioValue) ?></textarea>
@@ -42,7 +35,6 @@ unset($_SESSION['form_name'], $_SESSION['form_bio']);
                 <?php unset($_SESSION['err_bio']); ?>
             </div>
 
-            <!-- BUTTONS -->
             <div class="col-12 mt-3">
                 <button type="submit" class="btn btn-primary">Save Author</button>
                 <a href="index.php" class="btn btn-secondary">Cancel</a>

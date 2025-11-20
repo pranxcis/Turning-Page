@@ -7,23 +7,19 @@ include('../config/database.php');
 
 <div class="container my-5">
 
-    <!-- FILTERS ON TOP -->
     <div class="d-flex flex-wrap justify-content-start align-items-center gap-2 mb-5">
 
-        <!-- Group 1: Books & Authors -->
         <div class="d-flex flex-wrap gap-2">
             <a href="index.php?filter=all" class="btn btn-outline-primary">Books</a>
             <a href="index.php?filter=authors" class="btn btn-outline-primary">Authors</a>
         </div>
 
-        <!-- Group 2: New Arrival, Top Picks, In Stock -->
         <div class="d-flex flex-wrap gap-2">
             <a href="index.php?filter=new_arrivals" class="btn btn-outline-primary">New Arrival</a>
             <a href="index.php?filter=top_picks" class="btn btn-outline-primary">Top Picks</a>
             <a href="index.php?filter=availability" class="btn btn-outline-primary">In Stock</a>
         </div>
 
-        <!-- Group 3: Rating Dropdown -->
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Rating
@@ -35,7 +31,6 @@ include('../config/database.php');
             </ul>
         </div>
 
-        <!-- Group 4: Genre Dropdown -->
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Genre
@@ -46,7 +41,6 @@ include('../config/database.php');
             </ul>
         </div>
 
-        <!-- Group 5: Search -->
         <form action="index.php" method="GET" class="d-flex ms-auto" style="max-width: 300px;">
             <input type="text" name="search" class="form-control rounded-0 rounded-start" placeholder="Search books..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
             <button type="submit" class="btn btn-dark rounded-0 rounded-end">Search</button>
@@ -59,7 +53,6 @@ $filter = $_GET['filter'] ?? 'all';
 $search = trim($_GET['search'] ?? '');
 
 if ($filter === 'authors') {
-    // Show authors list
     $sql = "SELECT * FROM authors";
     if (!empty($search)) {
         $searchEscaped = $conn->real_escape_string($search);
@@ -94,7 +87,6 @@ if ($filter === 'authors') {
 
 <?php
 } else {
-    // Show books
     $sql = "
         SELECT b.*, a.name AS author_name, COALESCE(AVG(r.rating),0) AS avg_rating
         FROM books b
@@ -105,7 +97,6 @@ if ($filter === 'authors') {
     $having = [];
     $orderBy = "b.title ASC";
 
-    // Filters
     switch ($filter) {
         case 'fiction': $conditions[]="b.genre='Fiction'"; $pageHeading="Fiction"; break;
         case 'nonfiction': $conditions[]="b.genre='Non-Fiction'"; $pageHeading="Non-Fiction"; break;
@@ -119,7 +110,6 @@ if ($filter === 'authors') {
         default: $pageHeading="All Books"; break;
     }
 
-    // Simple search: title, author, genre, description
     if (!empty($search)) {
         $searchEscaped = $conn->real_escape_string($search);
         $conditions[] = "(b.title LIKE '%$searchEscaped%' OR a.name LIKE '%$searchEscaped%' OR b.genre LIKE '%$searchEscaped%' OR b.description LIKE '%$searchEscaped%')";

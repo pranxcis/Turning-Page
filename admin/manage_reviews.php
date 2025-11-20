@@ -4,22 +4,17 @@ $pageTitle = "Manage Reviews";
 include('../includes/header.php');
 include('../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// SEARCH
 $keyword = '';
 if(isset($_GET['search'])) {
     $keyword = strtolower(trim($_GET['search']));
 }
 
-// Fetch reviews with book and user info
 $sql = "SELECT r.id AS review_id, r.user_id, r.book_id, r.rating, r.review_text, r.created_at,
                b.title AS book_title, b.image AS book_image,
                u.username, p.first_name, p.last_name
@@ -49,7 +44,6 @@ $reviewCount = mysqli_num_rows($result);
             </a>
         </div>
 
-        <!-- Search -->
         <form class="mb-4" method="GET" action="">
             <div class="input-group">
                 <input type="text" name="search" class="form-control" placeholder="Search by book, user, or review..." value="<?= htmlspecialchars($keyword) ?>">
@@ -62,7 +56,6 @@ $reviewCount = mysqli_num_rows($result);
                 <?php while ($review = mysqli_fetch_assoc($result)): ?>
                     <div class="col-12">
                         <div class="card flex-row align-items-center p-3 shadow-sm">
-                            <!-- BOOK IMAGE -->
                             <div class="me-3" style="width:120px; flex-shrink:0;">
                                 <?php if($review['book_image'] && file_exists("../assets/images/books/".$review['book_image'])): ?>
                                     <img src="../assets/images/books/<?= $review['book_image'] ?>" alt="<?= htmlspecialchars($review['book_title']) ?>" class="img-thumbnail" style="width:100%; height:150px; object-fit:cover;">
@@ -71,7 +64,6 @@ $reviewCount = mysqli_num_rows($result);
                                 <?php endif; ?>
                             </div>
 
-                            <!-- DETAILS -->
                             <div class="flex-grow-1">
                                 <h5 class="mb-1 fw-bold"><?= htmlspecialchars($review['book_title']) ?></h5>
                                 <p class="mb-1 text-secondary">
@@ -89,7 +81,6 @@ $reviewCount = mysqli_num_rows($result);
                                 </p>
                             </div>
 
-                            <!-- ACTIONS -->
                             <div class="d-flex flex-column align-items-center ms-3" style="gap:10px; min-width:50px;">
                                 <a href="reviews/edit_review.php?id=<?= $review['review_id'] ?>" class="text-decoration-none text-dark" title="Edit">
                                     <i class="fas fa-edit fa-lg"></i>
@@ -110,5 +101,4 @@ $reviewCount = mysqli_num_rows($result);
 
 <?php include('../includes/footer.php'); ?>
 
-<!-- Include Font Awesome if not already loaded -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

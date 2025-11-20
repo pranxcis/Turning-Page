@@ -1,4 +1,4 @@
-    <?php
+<?php
     session_start();
     include('../../config/database.php');
 
@@ -15,14 +15,12 @@
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $role = ($_POST['role'] === 'admin') ? 'admin' : 'customer';
 
-        // Insert into users
         $stmt = $conn->prepare("INSERT INTO users (username, email, password, role, status, created_at) VALUES (?, ?, ?, ?, 1, NOW())");
         $stmt->bind_param("ssss", $username, $email, $password, $role);
         $stmt->execute();
         $user_id = $stmt->insert_id;
         $stmt->close();
 
-        // Handle profile picture
         $profile_picture = null;
         if (!empty($_FILES['profile_picture']['name'])) {
             $ext = pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION);
@@ -30,7 +28,6 @@
             move_uploaded_file($_FILES['profile_picture']['tmp_name'], "../../assets/images/users/$profile_picture");
         }
 
-        // Insert into user_profiles
         $stmt = $conn->prepare("INSERT INTO user_profiles (user_id, first_name, last_name, middle_initial, phone, address, town, zipcode, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param(
             "issssssss",

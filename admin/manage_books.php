@@ -3,22 +3,17 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// SEARCH
 $keyword = '';
 if(isset($_GET['search'])) {
     $keyword = strtolower(trim($_GET['search']));
 }
 
-// FETCH BOOKS
 if ($keyword) {
     $sql = "SELECT b.id, b.title, b.genre, b.set_price, b.price, b.stock, b.image, a.name AS author_name 
             FROM books b 
@@ -45,7 +40,6 @@ $bookCount = mysqli_num_rows($result);
         </a>
     </div>
 
-    <!-- Search -->
     <form class="mb-4" method="GET" action="">
         <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="Search by book title..." value="<?= htmlspecialchars($keyword) ?>">
@@ -58,7 +52,6 @@ $bookCount = mysqli_num_rows($result);
             <?php while ($book = mysqli_fetch_assoc($result)): ?>
                 <div class="col-12">
                     <div class="card flex-row align-items-center p-3 shadow-sm">
-                        <!-- IMAGE -->
                         <div class="book-img me-3">
                             <?php if($book['image'] && file_exists("../assets/images/books/".$book['image'])): ?>
                                 <img src="../assets/images/books/<?= $book['image'] ?>" alt="<?= htmlspecialchars($book['title']) ?>" class="img-thumbnail" style="width:120px; height:150px; object-fit:cover;">
@@ -67,7 +60,6 @@ $bookCount = mysqli_num_rows($result);
                             <?php endif; ?>
                         </div>
 
-                        <!-- DETAILS -->
                         <div class="flex-grow-1">
                             <h5 class="card-title mb-1"><?= htmlspecialchars($book['title']) ?></h5>
                             <p class="mb-1"><strong>Author:</strong> <?= htmlspecialchars($book['author_name']) ?></p>
@@ -76,7 +68,6 @@ $bookCount = mysqli_num_rows($result);
                             <p class="mb-1"><strong>Stock:</strong> <?= $book['stock'] ?></p>
                         </div>
 
-                        <!-- ACTIONS -->
                         <div class="d-flex flex-column ms-3">
                             <a href="books/edit_book.php?id=<?= $book['id'] ?>" class="btn btn-outline-primary btn-sm mb-2">
                                 <i class="fa-regular fa-pen-to-square"></i> Edit

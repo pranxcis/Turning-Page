@@ -3,9 +3,6 @@ session_start();
 include('../includes/header.php');
 include('../config/database.php');
 
-// ------------------------
-// USER MUST BE LOGGED IN
-// ------------------------
 if (!isset($_SESSION['user'])) {
     $_SESSION['message'] = "Please login to view your order.";
     header("Location: ../login.php");
@@ -14,9 +11,6 @@ if (!isset($_SESSION['user'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-// ------------------------
-// VALIDATE ORDER ID
-// ------------------------
 $order_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 if ($order_id <= 0) {
     echo "<div class='container my-4'><p>Invalid order selected.</p></div>";
@@ -24,9 +18,6 @@ if ($order_id <= 0) {
     exit;
 }
 
-// ------------------------
-// FETCH ORDER DETAILS
-// ------------------------
 $sql_order = "
     SELECT * 
     FROM orders
@@ -46,9 +37,6 @@ if ($result_order->num_rows === 0) {
 
 $order = $result_order->fetch_assoc();
 
-// ------------------------
-// FETCH ORDER ITEMS (include book_id for review)
-// ------------------------
 $sql_items = "
     SELECT oi.quantity, oi.price, b.id AS book_id, b.title, b.image
     FROM order_items oi

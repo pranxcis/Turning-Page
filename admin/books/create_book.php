@@ -3,16 +3,12 @@ session_start();
 include('../../includes/header.php');
 include('../../config/database.php');
 
-// ------------------------
-// ADMIN ACCESS ONLY
-// ------------------------
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
     exit;
 }
 
-// Load previous input values
 $titleValue      = $_SESSION['form_title']      ?? '';
 $authorValue     = $_SESSION['form_author']     ?? '';
 $genreValue      = $_SESSION['form_genre']      ?? '';
@@ -24,7 +20,6 @@ $stockValue      = $_SESSION['form_stock']      ?? '';
 
 unset($_SESSION['form_title'], $_SESSION['form_author'], $_SESSION['form_genre'], $_SESSION['form_set_price'], $_SESSION['form_price'], $_SESSION['form_description'], $_SESSION['form_condition'], $_SESSION['form_stock']);
 
-// Fetch authors for dropdown
 $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
 ?>
 
@@ -34,7 +29,6 @@ $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
     <form method="POST" action="store_book.php" enctype="multipart/form-data">
         <div class="row g-3">
 
-            <!-- TITLE -->
             <div class="col-12">
                 <label>Book Title</label>
                 <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($titleValue) ?>" />
@@ -42,7 +36,6 @@ $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
                 <?php unset($_SESSION['err_title']); ?>
             </div>
 
-<!-- AUTHOR & GENRE -->
 <div class="col-md-6">
     <label>Author</label>
     <select name="author_id" class="form-control">
@@ -84,7 +77,6 @@ $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
                 <?php unset($_SESSION['err_price']); ?>
             </div>
             
-<!-- CONDITION & STOCK -->
 <div class="col-md-6">
     <label>Condition</label>
     <select name="condition" class="form-control">
@@ -104,7 +96,6 @@ $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
                 <?php unset($_SESSION['err_stock']); ?>
             </div>
 
-            <!-- DESCRIPTION -->
             <div class="col-12">
                 <label>Description</label>
                 <textarea name="description" class="form-control" rows="3"><?= htmlspecialchars($descValue) ?></textarea>
@@ -112,7 +103,6 @@ $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
                 <?php unset($_SESSION['err_description']); ?>
             </div>
 
-            <!-- IMAGE -->
             <div class="col-12">
                 <label>Main Book Image</label>
                 <input type="file" name="image" class="form-control" />
@@ -120,7 +110,6 @@ $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
                 <?php unset($_SESSION['err_image']); ?>
             </div>
 
-            <!-- MULTIPLE IMAGES -->
             <div class="col-12">
                 <label>Additional Book Images</label>
                 <input type="file" name="additional_images[]" class="form-control" multiple />
@@ -128,7 +117,6 @@ $authorQuery = $conn->query("SELECT id, name FROM authors ORDER BY name ASC");
                 <?php unset($_SESSION['err_additional_images']); ?>
             </div>
 
-            <!-- BUTTONS -->
             <div class="col-12 mt-3">
                 <button type="submit" class="btn btn-primary">Save Book</button>
                 <a href="index.php" class="btn btn-secondary">Cancel</a>

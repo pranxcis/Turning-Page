@@ -2,7 +2,6 @@
 session_start();
 include('../config/database.php');
 
-// Make sure the user is logged in
 if (!isset($_SESSION['user']['id'])) {
     $_SESSION['message'] = "Please login to view your order receipt.";
     header("Location: ../login.php");
@@ -11,7 +10,6 @@ if (!isset($_SESSION['user']['id'])) {
 
 $user_id = $_SESSION['user']['id'];
 
-// Get the latest order for this user
 $order_id = intval($_GET['order_id'] ?? 0);
 if ($order_id <= 0) {
     $_SESSION['message'] = "Invalid order.";
@@ -19,7 +17,6 @@ if ($order_id <= 0) {
     exit;
 }
 
-// Fetch order details
 $stmt = $conn->prepare("
     SELECT o.*, up.first_name, up.last_name, u.username, u.email
     FROM orders o
@@ -39,7 +36,6 @@ if (!$order) {
     exit;
 }
 
-// Fetch order items
 $stmt = $conn->prepare("
     SELECT oi.*, b.title, b.image
     FROM order_items oi

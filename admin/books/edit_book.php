@@ -20,7 +20,6 @@ if ($bookId <= 0) {
     exit;
 }
 
-// Fetch book info
 $bookQuery = mysqli_query($conn, "SELECT * FROM books WHERE id = $bookId");
 $book = mysqli_fetch_assoc($bookQuery);
 
@@ -30,23 +29,19 @@ if (!$book) {
     exit;
 }
 
-// Fetch authors
 $authors = mysqli_query($conn, "SELECT id, name FROM authors ORDER BY name ASC");
 
-// Load previous input values if validation failed
 $titleValue      = $_SESSION['form_title']       ?? $book['title'];
 $authorValue     = $_SESSION['form_author']      ?? $book['author_id'];
-$genreValue      = $_SESSION['form_genre']       ?? $book['genre']; // stored as comma-separated string
+$genreValue      = $_SESSION['form_genre']       ?? $book['genre']; 
 $setPriceValue   = $_SESSION['form_set_price']   ?? $book['set_price'];
 $priceValue      = $_SESSION['form_price']       ?? $book['price'];
 $descValue       = $_SESSION['form_description'] ?? $book['description'];
 $conditionValue  = $_SESSION['form_condition']   ?? $book['condition'];
 $stockValue      = $_SESSION['form_stock']       ?? $book['stock'];
 
-// Split genre into array for checkboxes
 $selectedGenres = explode(',', $genreValue);
 
-// Clear previous form session data
 unset(
     $_SESSION['form_title'],
     $_SESSION['form_author'],
@@ -66,7 +61,6 @@ unset(
         <input type="hidden" name="book_id" value="<?= $book['id'] ?>">
 
         <div class="row g-3">
-            <!-- TITLE -->
             <div class="col-12">
                 <label>Book Title</label>
                 <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($titleValue) ?>">
@@ -74,7 +68,6 @@ unset(
                 <?php unset($_SESSION['err_title']); ?>
             </div>
 
-            <!-- AUTHOR -->
             <div class="col-md-6">
                 <label>Author</label>
                 <select name="author_id" class="form-control">
@@ -89,7 +82,6 @@ unset(
                 <?php unset($_SESSION['err_author']); ?>
             </div>
 
-            <!-- GENRE (MULTIPLE) -->
             <div class="col-md-6">
                 <label>Genre</label>
                 <select name="genre" class="form-control">
@@ -104,7 +96,7 @@ unset(
                 <small class="text-danger"><?= $_SESSION['err_genre'] ?? '' ?></small>
                 <?php unset($_SESSION['err_genre']); ?>
             </div>
-            <!-- PRICES -->
+
             <div class="col-md-6">
                 <label>Original Price (Set Price)</label>
                 <input type="number" step="0.01" name="set_price" class="form-control" value="<?= htmlspecialchars($setPriceValue) ?>">
@@ -119,7 +111,6 @@ unset(
                 <?php unset($_SESSION['err_price']); ?>
             </div>
 
-            <!-- CONDITION -->
             <div class="col-md-6">
                 <label>Condition</label>
                 <select name="condition" class="form-control">
@@ -135,7 +126,6 @@ unset(
                 <?php unset($_SESSION['err_condition']); ?>
             </div>
 
-            <!-- STOCK -->
             <div class="col-md-6">
                 <label>Stock</label>
                 <input type="number" name="stock" class="form-control" value="<?= htmlspecialchars($stockValue) ?>">
@@ -143,7 +133,6 @@ unset(
                 <?php unset($_SESSION['err_stock']); ?>
             </div>
 
-            <!-- DESCRIPTION -->
             <div class="col-12">
                 <label>Description</label>
                 <textarea name="description" class="form-control" rows="3"><?= htmlspecialchars($descValue) ?></textarea>
@@ -151,7 +140,6 @@ unset(
                 <?php unset($_SESSION['err_description']); ?>
             </div>
 
-            <!-- MAIN IMAGE -->
             <div class="col-12">
                 <label>Main Book Image</label>
                 <input type="file" name="image" class="form-control">
@@ -164,13 +152,11 @@ unset(
                 <?php endif; ?>
             </div>
 
-            <!-- ADDITIONAL IMAGES -->
             <div class="col-12">
                 <label>Additional Images</label>
                 <input type="file" name="additional_images[]" class="form-control" multiple>
             </div>
 
-            <!-- BUTTONS -->
             <div class="col-12 mt-3">
                 <button type="submit" class="btn btn-primary">Update Book</button>
                 <a href="../manage_books.php" class="btn btn-secondary">Cancel</a>

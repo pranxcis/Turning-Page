@@ -6,7 +6,7 @@ include 'includes/header.php';
 include 'config/database.php';
 ?>
 
-<!-- HERO -->
+<!-- Para sa Mainpage Home With Search Bar -->
 <div class="hero text-center p-5 rounded" style="overflow:hidden; margin: 10rem 0;">
     <h1 class="mb-3" style="font-size:3rem; margin-top:5rem;">Turning Page</h1>
     <p class="mb-4" style="font-size:1.2rem;">Discover secondhand and collectible books at great prices.</p>
@@ -23,7 +23,6 @@ include 'config/database.php';
 function renderBookCard($row) {
     $imagePath = 'assets/images/books/';
 
-    // Use the DB image if it exists; otherwise use default.jpg
     $image = (isset($row['image']) && !empty($row['image'])) ? $row['image'] : 'default.jpg';
 
     ?>
@@ -48,7 +47,7 @@ function renderBookCard($row) {
 
 ?>
 
-<!-- NEW RELEASES -->
+<!-- NEW RELEASE na books -->
 <div class="my-5">
     <h2>New Releases</h2>
     <ul class="row list-unstyled mt-3">
@@ -66,7 +65,7 @@ function renderBookCard($row) {
     </ul>
 </div>
 
-<!-- BEST SELLERS -->
+<!-- BEST SELLERS na books -->
 <div class="my-5">
     <h2>Best Sellers</h2>
     <ul class="row list-unstyled mt-3">

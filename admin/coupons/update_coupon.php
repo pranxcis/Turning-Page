@@ -2,7 +2,6 @@
 session_start();
 include('../../config/database.php');
 
-// Admin check
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     $_SESSION['message'] = "Access denied. Admins only.";
     header("Location: ../login.php");
@@ -16,7 +15,6 @@ $amount = $_POST['amount'];
 $min_order = $_POST['min_order'];
 $expires_at = $_POST['expires_at'];
 
-// Simple validation
 $errors = [];
 if(!$code) $errors[] = "Code is required";
 if(!$type) $errors[] = "Type is required";
@@ -30,7 +28,6 @@ if($errors){
     exit;
 }
 
-// Update DB
 $stmt = $conn->prepare("UPDATE coupons SET code=?, type=?, amount=?, min_order=?, expires_at=? WHERE id=?");
 $stmt->bind_param("ssddsi",$code,$type,$amount,$min_order,$expires_at,$id);
 if($stmt->execute()){
