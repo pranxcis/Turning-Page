@@ -1,61 +1,28 @@
 <?php
 session_start();
 include("../config/database.php"); 
+    
+if (isset($_POST['submit'])) {
+    $email = trim($_POST['email']);
+    $pass = sha1(trim($_POST['password']));
 
-$errors = [];
+    $stmt = $conn->prepare("SELECT id, username, role FROM users WHERE email=? AND password=? LIMIT 1");
+    $stmt->bind_param("ss", $email, $pass);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($user_id, $username, $role);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $email = trim($_POST['email'] ?? '');
-    $password = trim($_POST['password'] ?? '');
-
-    if ($email === '') {
-        $errors[] = "Email is required.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email format.";
-    }
-
-    if ($password === '') {
-        $errors[] = "Password is required.";
-    }
-
-    if (empty($errors)) {
-
-        $stmt = $conn->prepare("
-            SELECT id, username, email, password, role, status 
-            FROM users 
-            WHERE email = ? LIMIT 1
-        ");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
-
-            if (password_verify($password, $user['password'])) {
-
-                if ($user['status'] === 'inactive') {
-                    $errors[] = "Your account has been deactivated.";
-                } else {
-                    $_SESSION['user'] = [
-                        'id'    => $user['id'],
-                        'name'  => $user['username'],
-                        'email' => $user['email'],
-                        'role'  => $user['role']
-                    ];
-
-                    header("Location: ../home.php");
-                    exit;
-                }
-
-            } else {
-                $errors[] = "Incorrect password.";
-            }
-
-        } else {
-            $errors[] = "Email not found.";
-        }
+    if ($stmt->num_rows === 1) {
+        $stmt->fetch();
+        $_SESSION['user'] = [
+            'id' => $user_id,
+            'name' => $username,
+            'role' => $role
+        ];
+        header("Location: ../home.php"); 
+        exit();
+    } else {
+        $_SESSION['message'] = 'Wrong email or password';
     }
 }
 
