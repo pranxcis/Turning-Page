@@ -54,8 +54,8 @@ include('../includes/header.php');
     <div class="d-flex mb-4 align-items-center">
         <div class="me-3">
             <a href="?filter=all&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter==='all') ? 'btn-primary' : 'btn-outline-primary' ?> me-2">All</a>
-            <a href="?filter=discount&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter==='discount') ? 'btn-primary' : 'btn-outline-primary' ?> me-2">Discount</a>
-            <a href="?filter=free_shipping&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter==='free_shipping') ? 'btn-primary' : 'btn-outline-primary' ?>">Free Shipping</a>
+            <a href="?filter=discount&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter==='Discount') ? 'btn-primary' : 'btn-outline-primary' ?> me-2">Discount</a>
+            <a href="?filter=free_shipping&search=<?= urlencode($keyword) ?>" class="btn <?= ($filter==='Free Shipping') ? 'btn-primary' : 'btn-outline-primary' ?>">Free Shipping</a>
         </div>
 
         <form class="flex-grow-1" method="GET" action="">
