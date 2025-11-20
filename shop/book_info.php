@@ -229,10 +229,6 @@ $review_stmt->close();
     <?php else: ?>
         <p class="text-muted">No reviews yet. Be the first to write one!</p>
     <?php endif; ?>
-
-    <?php if (isset($_SESSION['user'])): ?>
-        <a href="../reviews/add_review.php?book_id=<?= $book_id; ?>" class="btn btn-outline-primary mt-3">Write a Review</a>
-    <?php endif; ?>
 </div>
 
 </div>

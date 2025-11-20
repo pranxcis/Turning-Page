@@ -18,5 +18,5 @@ if ($review_id > 0) {
     $_SESSION['message'] = "Review deleted successfully.";
 }
 
-header("Location: manage_reviews.php");
+header("Location: ../manage_reviews.php");
 exit;

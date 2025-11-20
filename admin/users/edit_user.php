@@ -95,7 +95,7 @@ include('../../includes/header.php');
                 <label class="form-label">Profile Picture</label>
                 <?php if ($user['profile_picture']): ?>
                     <div class="mb-2">
-                        <img src="../assets/images/users/<?= htmlspecialchars($user['profile_picture']) ?>" alt="Profile Picture" width="80">
+                        <img src="../../assets/images/users/<?= htmlspecialchars($user['profile_picture']) ?>" alt="Profile Picture" width="80">
                     </div>
                 <?php endif; ?>
                 <input type="file" name="profile_picture" class="form-control">

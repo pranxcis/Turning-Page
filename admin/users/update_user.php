@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_FILES['profile_picture']['name'])) {
         $ext = pathinfo($_FILES['profile_picture']['name'], PATHINFO_EXTENSION);
         $profile_picture = "user_$user_id.".$ext;
-        move_uploaded_file($_FILES['profile_picture']['tmp_name'], "../assets/images/users/$profile_picture");
+        move_uploaded_file($_FILES['profile_picture']['tmp_name'], "../../assets/images/users/$profile_picture");
 
         // Update user_profiles with new picture
         $stmt = $conn->prepare("UPDATE user_profiles SET profile_picture=? WHERE user_id=?");

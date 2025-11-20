@@ -5,7 +5,7 @@ include('../config/database.php');
 // Must be logged in
 if (!isset($_SESSION['user']['id'])) {
     $_SESSION['message'] = "Please login to use the cart.";
-    header("Location: ../login.php");
+    header("Location: ../user/login.php");
     exit;
 }
 
